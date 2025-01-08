@@ -1,10 +1,14 @@
 lowercase entry is non-terminal and uppercase entry is terminal.
+terminal is represented in either string or regular expression.
 ```
 input           : linebreak
                 | expression linebreak
+                | equation linebreak
                 ;
-expression      : additive_exp
-                | term
+equation        : expression '=' expression
+                ;
+expression      : term
+                | additive_exp
                 ;
 additive_exp    : multiple_exp
                 | multiple_exp additive_op additive_exp
@@ -12,7 +16,8 @@ additive_exp    : multiple_exp
 multiple_exp    : term
                 | term multiple_op multiple_exp
                 ;
-term            : '(' UNARY_OP term ')'
+term            : '(' term ')'
+                | '(' UNARY_OP term ')'
                 | '(' expression ')'
                 | NUMBER
                 | VARIABLE
