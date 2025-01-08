@@ -2,10 +2,13 @@ lowercase entry is non-terminal and uppercase entry is terminal.
 terminal is represented in either string or regular expression.
 ```
 input           : linebreak
-                | expression linebreak
                 | equation linebreak
+                | assignment linebreak // v2 feature
+                | expression linebreak
                 ;
 equation        : expression '=' expression
+                ;
+assignment      : VARIABLE '=' expression
                 ;
 expression      : term
                 | additive_exp
@@ -24,7 +27,7 @@ term            : '(' term ')'
                 | function
                 ;
 function        : power
-                | trigonometric
+                | trigonometric // v2 feature
                 ;
 power           : term '^' term
                 ;
