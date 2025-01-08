@@ -43,7 +43,7 @@ multiple_op     : '*'
 NUMBER          : [1-9][0-9]*               // integer
                 | ([1-9][0-9]*|0).[0-9]*    // float
                 ;
-VARIABLE        : [a-z]([0-9]|[a-z]|_)*
+VARIABLE        : ([a-z]|[A-Z]|_)([0-9]|[a-z]|[A-Z]|_)*
                 ;
 linebreak       : NEWLINE
                 ;
