@@ -2,22 +2,22 @@ lowercase entry is non-terminal and uppercase entry is terminal.
 terminal is represented in either string or regular expression.
 ```
 input           : linebreak
-                | equation linebreak
                 | assignment linebreak // v2 feature
+                | equation linebreak
                 | expression linebreak
                 ;
-equation        : expression '=' expression
-                ;
 assignment      : VARIABLE '=' expression
+                ;
+equation        : expression '=' expression
                 ;
 expression      : term
                 | additive_exp
                 ;
-additive_exp    : multiple_exp
-                | multiple_exp additive_op additive_exp
+additive_exp    : multiple_exp additive_op additive_exp
+                | multiple_exp
                 ;
-multiple_exp    : term
-                | term multiple_op multiple_exp
+multiple_exp    : term multiple_op multiple_exp
+                | term
                 ;
 term            : '(' term ')'
                 | '(' UNARY_OP term ')'

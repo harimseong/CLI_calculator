@@ -18,6 +18,5 @@ public:
 // member functions
 };
 
-}
-
+} // parsing
 #endif // AST_HPP
