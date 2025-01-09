@@ -3,21 +3,39 @@
 echo "info) recommend to set ClassNames as UpperCamelCase."
 echo "info) Either awk or gsed(gnu sed) is required."
 
-if [ "$1" = "-f" ]
-then
-  FILENAME=$2
-  cat $FILENAME 2> /dev/null 1> /dev/null
-  if [ $? != "0" ]
-  then
-    echo "file doesn't exist."
+CLASSES=
+NAMESPACE=
+TARGET=
+while [ $# -gt 0 ]; do
+  case "$1" in
+  "-f")
+    FILENAME=$2
+    cat $FILENAME 2> /dev/null 1> /dev/null
+    if [ $? != "0" ]
+    then
+      echo "file doesn't exist."
+      exit 1
+    fi
+    if [ "${FILENAME:0:1}" == "_" ]; then
+      TARGET=${FILENAME:1}
+    else
+      TARGET=$FILENAME
+    fi
+
+    CLASSES=$(cat $FILENAME)
+    shift
+    shift
+  ;;
+  "--ns")
+    NAMESPACE="1"
+    shift
+  ;;
+  *)
+    echo "usage) bash  $0  -f  filename"
     exit 1
-  fi
-  CLASSES=$(cat $FILENAME)
-else
-  echo "usage) bash  $0  -f  filename"
-  exit 1
-fi
-SRC_LIST=""
+  ;;
+  esac
+done
 
 AWK=0
 which awk > /dev/null
@@ -41,9 +59,9 @@ do
     CLASS_PATH="$(dirname $CLASS_ENTRY)"
   fi
 
-  ls $CLASS_ENTRY.cpp 2> /dev/null && ls $CLASS_ENTRY.hpp 2> /dev/null
   SRC_LIST="\\
         $CLASS_ENTRY.cpp$SRC_LIST"
+  ls $CLASS_ENTRY.cpp >/dev/null 2>&1 && ls $CLASS_ENTRY.hpp >/dev/null 2>&1 
   if [ $? == "0" ]
   then
     echo "$CLASS_ENTRY: duplicated file name found."
@@ -56,19 +74,24 @@ do
   fi
   touch $CLASS_ENTRY.hpp
   touch $CLASS_ENTRY.cpp
-  if [ $AWK != "1" ]
-  then
+  if [ $AWK != "1" ]; then
     HEADER_GUARD="$(echo $CLASS | $SED 's/[A-Z]/&/g' | $SED 's/[a-z]/\U&/g' | $SED 's/$/_HPP/')"
     LOWCAMELCASE_CLASS=$(echo $CLASS | $SED 's/[A-Z]/\L&/')
   else
     HEADER_GUARD="$(echo $CLASS | awk '{print toupper($0)}' | $SED 's/$/_HPP/')"
     LOWCAMELCASE_CLASS=$(echo $CLASS | awk '{print tolower($0)}')
   fi
+  NAMESPACE_BEGIN="\n"
+  NAMESPACE_END="\n"
+  if [ -n $NAMESPACE ]; then
+    NAMESPACE_BEGIN="\nnamespace $(basename $CLASS_PATH)\n{\n"
+    NAMESPACE_END="\n\n}"
+  fi
 
 ##### file contents
 HEADER_CONTENT="#ifndef $HEADER_GUARD
 #define $HEADER_GUARD
-
+$NAMESPACE_BEGIN
 class  $CLASS
 {
 public:
@@ -81,11 +104,11 @@ public:
   $CLASS\t&operator=(const $CLASS&);
 
 // member functions
-};
+};$NAMESPACE_END
 
 #endif // $HEADER_GUARD"
 SOURCE_CONTENT="#include \"$CLASS.hpp\"
-
+$NAMESPACE_BEGIN
 // constructors & destructor
 $CLASS::$CLASS()
 {
@@ -97,16 +120,16 @@ $CLASS::~$CLASS()
 
 $CLASS::$CLASS(const $CLASS& arg)
 {
-  (void)$LOWCAMELCASE_CLASS;
+  (void)arg;
 }
 
 // operators
 $CLASS&
 $CLASS::operator=(const $CLASS& arg)
 {
-  (void)$LOWCAMELCASE_CLASS;
+  (void)arg;
   return *this;
-}"
+}$NAMESPACE_END"
 #####
 
   printf '%b\n' "$HEADER_CONTENT" > $CLASS_ENTRY.hpp
@@ -114,7 +137,9 @@ $CLASS::operator=(const $CLASS& arg)
 
 done
 
-MAKEFILE_CONTENT="NAME    =  $FILENAME
+SRC_LIST="\\
+        main.cpp$SRC_LIST"
+MAKEFILE_CONTENT="NAME    =  $TARGET
 
 
 CXX       :=  c++
@@ -134,12 +159,12 @@ OPEN_LIST :=  \$(SRC)\\
 OBJ       :=  \$(SRC:%.cpp=%.o)
 DEP       :=  \$(OBJ:%.o=%.d)
 
-STATE     :=  \$(shell ls DEBUG.mode 2> /dev/null)
-ifeq (\$(STATE), DEBUG.mode)
+STATE     :=  \$(shell ls .DEBUG 2> /dev/null)
+ifeq (\$(STATE), .DEBUG)
 CXXFLAGS  +=  \$(DEBUGFLAGS)
-COMPILE_MODE:=  DEBUG.mode
+COMPILE_MODE:=  .DEBUG
 else
-COMPILE_MODE:=  RELEASE.mode
+COMPILE_MODE:=  .RELEASE
 endif
 
 
@@ -148,23 +173,23 @@ endif
 all: \$(COMPILE_MODE)
 \t\$(MAKE) \$(NAME)
 
-release: RELEASE.mode
+release: .RELEASE
 \t\$(MAKE) all
 
-debug: DEBUG.mode
+debug: DEBUG
 \t\$(MAKE) all
 
-RELEASE.mode:
+.RELEASE:
 \t\$(MAKE) fclean
-\ttouch RELEASE.mode
+\ttouch .RELEASE
 
-DEBUG.mode:
+.DEBUG:
 \t\$(MAKE) fclean
-\ttouch DEBUG.mode
+\ttouch .DEBUG
 
 clean:
 \t\$(RM) \$(OBJ)
-\t\$(RM) RELEASE.mode DEBUG.mode
+\t\$(RM) .RELEASE .DEBUG
 
 fclean: clean
 \t\$(RM) \$(NAME)
@@ -210,8 +235,7 @@ VIMSPECTOR="{
 read -p "Do you want to delete input file \"$FILENAME\"? (y/n)" RESPONSE
 if [ $RESPONSE ]
 then
-  if [ $RESPONSE = "y" ]
-  then
+  if [ "$RESPONSE" == "y" ]; then
     rm $FILENAME
   fi
 fi

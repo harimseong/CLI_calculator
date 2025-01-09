@@ -1,5 +1,8 @@
 #include "computer.hpp"
 
+namespace computing
+{
+
 // constructors & destructor
 computer::computer()
 {
@@ -9,15 +12,17 @@ computer::~computer()
 {
 }
 
-computer::computer(const computer& computer)
+computer::computer(const computer& arg)
 {
-  (void)computer;
+  (void)arg;
 }
 
 // operators
 computer&
-computer::operator=(const computer& computer)
+computer::operator=(const computer& arg)
 {
-  (void)computer;
+  (void)arg;
   return *this;
+}
+
 }

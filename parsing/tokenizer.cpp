@@ -1,5 +1,8 @@
 #include "tokenizer.hpp"
 
+namespace parsing
+{
+
 // constructors & destructor
 tokenizer::tokenizer()
 {
@@ -9,15 +12,17 @@ tokenizer::~tokenizer()
 {
 }
 
-tokenizer::tokenizer(const tokenizer& tokenizer)
+tokenizer::tokenizer(const tokenizer& arg)
 {
-  (void)tokenizer;
+  (void)arg;
 }
 
 // operators
 tokenizer&
-tokenizer::operator=(const tokenizer& tokenizer)
+tokenizer::operator=(const tokenizer& arg)
 {
-  (void)tokenizer;
+  (void)arg;
   return *this;
+}
+
 }

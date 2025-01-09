@@ -1,5 +1,8 @@
 #include "parser.hpp"
 
+namespace parsing
+{
+
 // constructors & destructor
 parser::parser()
 {
@@ -9,15 +12,17 @@ parser::~parser()
 {
 }
 
-parser::parser(const parser& parser)
+parser::parser(const parser& arg)
 {
-  (void)parser;
+  (void)arg;
 }
 
 // operators
 parser&
-parser::operator=(const parser& parser)
+parser::operator=(const parser& arg)
 {
-  (void)parser;
+  (void)arg;
   return *this;
+}
+
 }

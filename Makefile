@@ -9,10 +9,13 @@ RM        :=  rm -f
 
 
 SRC       :=  \
-				main.cpp\
+        main.cpp\
+        computing/data.cpp\
+        computing/analyzer.cpp\
+        computing/computer.cpp\
+        parsing/ast.cpp\
         parsing/tokenizer.cpp\
-        parsing/parser.cpp\
-        computing/computer.cpp
+        parsing/parser.cpp
 
 TEMPLATE_SRC:=
 
@@ -22,12 +25,12 @@ OPEN_LIST :=  $(SRC)\
 OBJ       :=  $(SRC:%.cpp=%.o)
 DEP       :=  $(OBJ:%.o=%.d)
 
-STATE     :=  $(shell ls DEBUG.mode 2> /dev/null)
-ifeq ($(STATE), DEBUG.mode)
+STATE     :=  $(shell ls .DEBUG 2> /dev/null)
+ifeq ($(STATE), .DEBUG)
 CXXFLAGS  +=  $(DEBUGFLAGS)
-COMPILE_MODE:=  DEBUG.mode
+COMPILE_MODE:=  .DEBUG
 else
-COMPILE_MODE:=  RELEASE.mode
+COMPILE_MODE:=  .RELEASE
 endif
 
 
@@ -36,23 +39,23 @@ endif
 all: $(COMPILE_MODE)
 	$(MAKE) $(NAME)
 
-release: RELEASE.mode
+release: .RELEASE
 	$(MAKE) all
 
-debug: DEBUG.mode
+debug: .DEBUG
 	$(MAKE) all
 
-RELEASE.mode:
+.RELEASE:
 	$(MAKE) fclean
-	touch RELEASE.mode
+	touch .RELEASE
 
-DEBUG.mode:
+.DEBUG:
 	$(MAKE) fclean
-	touch DEBUG.mode
+	touch .DEBUG
 
 clean:
 	$(RM) $(OBJ)
-	$(RM) RELEASE.mode DEBUG.mode
+	$(RM) .RELEASE .DEBUG
 
 fclean: clean
 	$(RM) $(NAME)
