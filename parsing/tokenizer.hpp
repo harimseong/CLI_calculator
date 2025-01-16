@@ -22,7 +22,7 @@ public:
 
 // member functions
   token get(std::string_view& input) {return token();};
-  token peek(std::string_view input) {return token();} const;
+  token peek(std::string_view input) const {return token();};
   void  consume(std::string_view& input) {};
 };
 
