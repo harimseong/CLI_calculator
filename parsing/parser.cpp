@@ -308,6 +308,8 @@ pass0:
 bool
 parser::parse_trigonometric(std::string_view input, ast& tree)
 {
+  (void)input;
+  (void)tree;
   return false; // v2
 }
 

@@ -25,4 +25,24 @@ tokenizer::operator=(const tokenizer& arg)
   return *this;
 }
 
+token
+tokenizer::get(std::string_view& input)
+{
+  (void)input;
+  return token();
+}
+
+token
+tokenizer::peek(std::string_view input) const
+{
+  (void)input;
+  return token();
+}
+
+void
+tokenizer::consume(std::string_view& input)
+{
+  (void)input;
+}
+
 }

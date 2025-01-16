@@ -8,8 +8,6 @@
 
 namespace parsing
 {
-class  ast;
-
 class  parser
 {
   typedef   token::type       token_type;

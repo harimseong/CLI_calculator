@@ -3,9 +3,8 @@
 
 #include <string_view>
 
-namespace 
+namespace parsing
 {
-
 class  token
 {
 public:
@@ -30,9 +29,15 @@ public:
     word = 0X600,
   };
 // constructors & destructor
-  token() {};
+  token()
+  {
+    type_ = type::empty;
+  };
   ~token() {};
-  token(const token&);
+  token(const token& t)
+  {
+    *this = t;
+  };
 
 // operators
   token	&operator=(const token& t)

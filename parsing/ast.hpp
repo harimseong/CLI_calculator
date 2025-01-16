@@ -30,17 +30,18 @@ public:
 // constructors & destructor
   ast();
   ~ast();
-  ast(const ast&);
+  ast(const ast& node);
 
 // operators
-  ast	&operator=(const ast&);
+  ast	&operator=(const ast& node);
 
 // member functions
   void  set_type(type type);
   void  insert(ast node);
   void  set_data(std::string_view data);
 
-  std::string_view  data;
+  type              type_;
+  std::string_view  data_;
 };
 
 } // parsing
