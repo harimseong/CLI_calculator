@@ -1,23 +1,17 @@
 #ifndef TOKENIZER_HPP
 #define TOKENIZER_HPP
 
+#include <string_view>
+
+#include "token.hpp"
+
 namespace parsing
 {
-class  tokenizer
+class   tokenizer
 {
 public:
-  enum type {
-    EMPTY,
-    EQUAL,
-    PARENTHESIS,
-    UNARY_OP,
-    ADD_OP,
-    MUL_OP,
-    FUNCTION,
-    FLOAT,
-    INTEGER,
-    WORD,
-  };
+
+  // == operator overloading?
 // constructors & destructor
   tokenizer();
   ~tokenizer();
@@ -27,6 +21,9 @@ public:
   tokenizer	&operator=(const tokenizer&);
 
 // member functions
+  token get(std::string_view& input) {return token();};
+  token peek(std::string_view input) {return token();} const;
+  void  consume(std::string_view& input) {};
 };
 
 }

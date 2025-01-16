@@ -2,9 +2,9 @@ lowercase entry is non-terminal and uppercase entry is terminal.
 terminal is represented in either string or regular expression.
 ```
 input           : linebreak
-                | assignment linebreak // v2 feature
-                | equation linebreak
-                | expression linebreak
+                | assignment LINEBREAK // v2 feature
+                | equation LINEBREAK
+                | expression LINEBREAK
                 ;
 assignment      : VARIABLE '=' expression
                 ;
@@ -13,10 +13,13 @@ equation        : expression '=' expression
 expression      : term
                 | additive_exp
                 ;
-additive_exp    : multiple_exp additive_op additive_exp
+additive_exp    : multiple_exp ADDITIVE_OP additive_exp
                 | multiple_exp
                 ;
-multiple_exp    : term multiple_op multiple_exp
+multiple_exp    : power MULTIPLE_OP multiple_exp
+                | power 
+                ;
+power           : term '^' power
                 | term
                 ;
 term            : '(' term ')'
@@ -26,21 +29,19 @@ term            : '(' term ')'
                 | VARIABLE
                 | function
                 ;
-function        : power
-                | trigonometric // v2 feature
-                ;
-power           : term '^' term
+function        : trigonometric // v2 feature
                 ;
 trigonometric   : 'cos(' expression ')'
                 | 'sin(' expression ')'
                 | 'tan(' expression ')'
                 ;
-UNARY_OP        : '-'
-                | '+'
+UNARY_OP        : '+'
+                | '-'
                 ;
-additive_op     : unary_op
+ADDITIVE_OP     : '+'
+                | '-'
                 ;
-multiple_op     : '*'
+MULTIPLE_OP     : '*'
                 | '/'
                 ;
 NUMBER          : [1-9][0-9]*               // integer
@@ -48,6 +49,8 @@ NUMBER          : [1-9][0-9]*               // integer
                 ;
 VARIABLE        : ([a-z]|[A-Z]|_)([0-9]|[a-z]|[A-Z]|_)*
                 ;
-linebreak       : NEWLINE
+LINEBREAK       : NEWLINE
                 ;
 ```
+
+removed Cycle term -> function -> power -> term
