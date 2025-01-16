@@ -13,6 +13,7 @@ class  ast;
 class  parser
 {
   typedef   token::type       token_type;
+  typedef   ast::type         ast_type;
 public:
 // constructors & destructor
   parser();

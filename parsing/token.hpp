@@ -1,7 +1,7 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
 
-#include <string>
+#include <string_view>
 
 namespace 
 {
@@ -10,24 +10,24 @@ class  token
 {
 public:
   enum class type {
-    EMPTY = 0,
+    empty = 0,
 
-    EQUAL = 0x100,
+    equal = 0X100,
 
-    PARENTHESIS = 0x200,
+    parenthesis = 0X200,
 
-    OPERATOR = 0x300,
-    UNARY_OP = 0x310,
-    ADD_OP = 0x310,
-    MUL_OP = 0x320,
+    op = 0X300,
+    unary_op = 0X310,
+    add_op = 0X310,
+    mul_op = 0X320,
 
-    FUNCTION = 0x400,
+    function = 0X400,
 
-    NUMBER = 0x500,
-    FLOAT,
-    INTEGER,
+    number = 0X500,
+    floating,
+    integer,
 
-    WORD = 0x600,
+    word = 0X600,
   };
 // constructors & destructor
   token() {};
@@ -35,11 +35,16 @@ public:
   token(const token&);
 
 // operators
-  token	&operator=(const token&);
+  token	&operator=(const token& t)
+  {
+    data_ = t.data_;
+    type_ = t.type_;
+    return *this;
+  };
 
 // member functions
-  std::string data_;
-  type        type_;
+  std::string_view  data_;
+  type              type_;
 };
 
 }

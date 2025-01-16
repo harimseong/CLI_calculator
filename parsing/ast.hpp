@@ -1,30 +1,32 @@
 #ifndef AST_HPP
 #define AST_HPP
 
+#include <string_view>
+
 namespace parsing
 {
-enum class  ast_type {
-  input,
-  equation,
-  assignment,
-  expression,
-  additive_exp,
-  multiple_exp,
-  term,
-  function,
-  power,
-  trigonometric,
-  unary_op,
-  additive_op,
-  multiple_op,
-  number,
-  variable,
-};
-
 class  ast
 {
-  typedef   void* data_type;
 public:
+  enum class  type {
+    empty,
+    input,
+    equation,
+    assignment,
+    expression,
+    additive_exp,
+    multiple_exp,
+    term,
+    function,
+    power,
+    trigonometric,
+    unary_op,
+    additive_op,
+    multiple_op,
+    number,
+    variable,
+  };
+
 // constructors & destructor
   ast();
   ~ast();
@@ -34,13 +36,11 @@ public:
   ast	&operator=(const ast&);
 
 // member functions
-  void  set_type(ast_type type);
+  void  set_type(type type);
   void  insert(ast node);
+  void  set_data(std::string_view data);
 
-  template <typename T>
-  void  set_data(T data);
-
-  void* data;
+  std::string_view  data;
 };
 
 } // parsing
