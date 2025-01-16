@@ -10,17 +10,13 @@ namespace parsing
 class   tokenizer
 {
 public:
-
-  // == operator overloading?
-// constructors & destructor
   tokenizer();
   ~tokenizer();
+private:
   tokenizer(const tokenizer&);
-
-// operators
   tokenizer	&operator=(const tokenizer&);
 
-// member functions
+public:
   token get(std::string_view& input);
   token peek(std::string_view input) const;
   void  consume(std::string_view& input);

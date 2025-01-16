@@ -12,16 +12,16 @@ tokenizer::~tokenizer()
 {
 }
 
-tokenizer::tokenizer(const tokenizer& arg)
+tokenizer::tokenizer(const tokenizer& t)
 {
-  (void)arg;
+  (void)t;
 }
 
 // operators
 tokenizer&
-tokenizer::operator=(const tokenizer& arg)
+tokenizer::operator=(const tokenizer& t)
 {
-  (void)arg;
+  (void)t;
   return *this;
 }
 

@@ -29,20 +29,31 @@ ast::operator=(const ast& node)
 void
 ast::set_type(ast::type type)
 {
-  (void)type;
+  type_ = type;
+}
+
+ast::type
+ast::get_type(void) const
+{
+  return type_;
 }
 
 void
 ast::insert(ast node)
 {
-  (void)node;
+  nodes_.push_back(node);
 }
 
 void
 ast::set_data(std::string_view data)
 {
-  (void)data;
+  data_ = data;
 }
 
+std::string_view
+ast::get_data(void) const
+{
+  return data_;
+}
 
 } // parsing

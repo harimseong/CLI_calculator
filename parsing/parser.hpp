@@ -13,15 +13,12 @@ class  parser
   typedef   token::type       token_type;
   typedef   ast::type         ast_type;
 public:
-// constructors & destructor
   parser();
   ~parser();
   parser(const parser&);
 
-// operators
   parser	&operator=(const parser&);
 
-// member functions
   bool    parse(std::string_view input, ast& tree);
   bool    parse_assignment(std::string_view input, ast& tree);
   bool    parse_equation(std::string_view input, ast& tree);
@@ -39,7 +36,7 @@ public:
   bool    parse_multiple_op(std::string_view input, ast& tree);
   bool    parse_linebreak(std::string_view input, ast& tree);
 
-// member variables
+private:
   tokenizer tokenizer_;
 };
 

@@ -2,6 +2,7 @@
 #define AST_HPP
 
 #include <string_view>
+#include <vector>
 
 namespace parsing
 {
@@ -27,21 +28,24 @@ public:
     variable,
   };
 
-// constructors & destructor
   ast();
   ~ast();
   ast(const ast& node);
 
-// operators
   ast	&operator=(const ast& node);
 
-// member functions
   void  set_type(type type);
-  void  insert(ast node);
-  void  set_data(std::string_view data);
+  type  get_type(void) const;
 
+  void              set_data(std::string_view data);
+  std::string_view  get_data(void) const;
+
+  void  insert(ast node);
+
+private:
   type              type_;
   std::string_view  data_;
+  std::vector<ast>  nodes_;
 };
 
 } // parsing
