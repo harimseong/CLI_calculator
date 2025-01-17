@@ -25,13 +25,20 @@ tokenizer::operator=(const tokenizer& t)
   return *this;
 }
 
+/*
+ * @return first token of input and discard consumed characters from input.
+ */
 token
 tokenizer::get(std::string_view& input)
 {
-  (void)input;
+  token t = peek(input);
+  consume(input);
   return token();
 }
 
+/*
+ * @return first token of input.
+ */
 token
 tokenizer::peek(std::string_view input) const
 {
@@ -39,10 +46,13 @@ tokenizer::peek(std::string_view input) const
   return token();
 }
 
+/*
+ * discard consumed characters from input as if a first token is taken.
+ */
 void
 tokenizer::consume(std::string_view& input)
 {
   (void)input;
 }
 
-}
+} // parsing
