@@ -26,33 +26,36 @@ tokenizer::operator=(const tokenizer& t)
 }
 
 /*
- * @return first token of input and discard consumed characters from input.
+ * @return a token and update input.
  */
 token
 tokenizer::get(std::string_view& input)
 {
-  token t = peek(input);
-  consume(input);
-  return token();
+  token new_token = peek(input);
+  size_t token_size = new_token.data_.size();
+  input = input.substr(token_size, input.size() - token_size);
+  return new_token;
 }
 
 /*
- * @return first token of input.
+ * @return a token from input.
+ * input is copied so that original input will not be changed.
  */
 token
 tokenizer::peek(std::string_view input) const
 {
-  (void)input;
-  return token();
+  std::string_view t = find_token(input); // end of token
+  token found_token{t};
+  return found_token; 
 }
 
 /*
- * discard consumed characters from input as if a first token is taken.
+ * discard a token and update input.
  */
 void
 tokenizer::consume(std::string_view& input)
 {
-  (void)input;
+  (void)get(input);
 }
 
 } // parsing

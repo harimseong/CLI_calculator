@@ -15,6 +15,7 @@ SRC       :=  \
         computing/computer.cpp\
         parsing/ast.cpp\
         parsing/tokenizer.cpp\
+        parsing/find_token.cpp\
         parsing/parser.cpp
 
 TEMPLATE_SRC:=

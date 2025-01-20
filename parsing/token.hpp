@@ -9,29 +9,36 @@ class  token
 {
 public:
   enum class type {
-    empty = 0,
+    equal = 0x100,
 
-    equal = 0X100,
+    parenthesis = 0x200,
 
-    parenthesis = 0X200,
+    op = 0x300,
+    unary_op = 0x310,
+    add_op = 0x310,
+    mul_op = 0x320,
 
-    op = 0X300,
-    unary_op = 0X310,
-    add_op = 0X310,
-    mul_op = 0X320,
+    function = 0x400,
 
-    function = 0X400,
-
-    number = 0X500,
+    number = 0x500,
+    digit = 0x510,
+    zero = 0x511,
+    nonzero_digit = 0x512,
     floating,
-    integer,
 
-    word = 0X600,
+    word = 0x600,
+
+    invalid = 0x700,
   };
 // constructors & destructor
   token()
   {
-    type_ = type::empty;
+    type_ = type::invalid;
+  };
+  token(std::string_view t)
+  : data_{t}
+  {
+    type_ = type::invalid;
   };
   ~token() {};
   token(const token& t)

@@ -16,6 +16,7 @@ private:
   tokenizer(const tokenizer&);
   tokenizer	&operator=(const tokenizer&);
 
+  std::string_view  find_token(std::string_view input) const;
 public:
   token get(std::string_view& input);
   token peek(std::string_view input) const;

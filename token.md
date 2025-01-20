@@ -7,24 +7,6 @@ FSM is defined by
 - starting state
 - accepting state
 
-### State
-- empty
-- equality
-- parenthesis
-- operator
-- function
-- number
-- word
-
-### Types of characters
-- whitespaces
-- equal sign
-- parenthesis
-- operators
-- function
-- number
-- word(combination of alphabet and underscore)
-
 
 ## Tokenizer
 
@@ -36,23 +18,47 @@ FSM is defined by
 
 ## Transition Diagram
 
+### States
+- start
+- accept
+- whitespaces
+- zero
+- nonzero_digits
+- floating
+- word
+
+### Types of characters
+- whitespace
+- parenthesis
+- operators (=|+|-|\*|/)
+- starting_zero ^0
+- nonzero_digit [1-9]
+- digit [0-9]
+- dot .
+- starting_char ^([a-z]|[A-Z]|\_)
+- character [a-z]|[A-Z]|[0-9]|\_)
+- invalid
+
+
 ```mermaid
 graph TD;
-    start -- WS --> accept
-    start -- = --> accept
-    start -- ( --> accept
-    start -- +, -, *, /, ^ --> accept
-    start -- [1-9] --> nonzero_digit
-    start -- 0 --> zero
-    start -- ([a-z]|[A-Z]|_) --> word
-    word -- ([a-z]|[A-Z]|[0-9]|_) --> word
-    word -- WS, OP, . --> accept
-    zero -- . --> float
-    zero -- [1-9] --> error
-    zero -- WS, OP --> accept
-    nonzero_digit -- [0-9] --> nonzero_digit
-    nonzero_digit -- . --> float
-    nonzero_digit -- WS, OP, --> accept
-    float -- [0-9] --> float
-    float -- WS, OP, . --> accept
+    start -- whitespace --> accept
+    start -- whitespace --> whitespaces
+    start -- operators --> accept
+    start -- parenthesis --> accept
+    start -- starting_zero --> accept
+    start -- starting_zero --> zero
+    start -- nonzero_digit --> nonzero_digits
+    start -- starting_char --> word
+    whitespaces -- whitespace --> whitespaces
+    whitespaces -- whitespace --> accept
+    zero -- dot --> floating
+    nonzero_digits -- dot --> floating
+    nonzero_digits -- digit --> nonzero_digits
+    nonzero_digits -- digit --> accept
+    floating -- digit --> floating
+    floating -- digit --> accept
+    word -- character --> word
+    word -- character --> accept
+
 ```
