@@ -44,7 +44,7 @@ ADDITIVE_OP     : '+'
 MULTIPLE_OP     : '*'
                 | '/'
                 ;
-NUMBER          : [1-9][0-9]*               // integer
+NUMBER          : (0|[1-9][0-9]*)           // integer
                 | ([1-9][0-9]*|0).[0-9]*    // float
                 ;
 VARIABLE        : ([a-z]|[A-Z]|_)([0-9]|[a-z]|[A-Z]|_)*
