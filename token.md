@@ -38,21 +38,21 @@ FSM is defined by
 
 ```mermaid
 graph TD;
-    start -- WS --> end
-    start -- = --> end
-    start -- ( --> end
-    start -- +, -, *, /, ^ --> end
+    start -- WS --> accept
+    start -- = --> accept
+    start -- ( --> accept
+    start -- +, -, *, /, ^ --> accept
     start -- [1-9] --> nonzero_digit
     start -- 0 --> zero
     start -- ([a-z]|[A-Z]|_) --> word
     word -- ([a-z]|[A-Z]|[0-9]|_) --> word
-    word -- WS, OP, . --> end
+    word -- WS, OP, . --> accept
     zero -- . --> float
     zero -- [1-9] --> error
-    zero -- WS, OP --> end
+    zero -- WS, OP --> accept
     nonzero_digit -- [0-9] --> nonzero_digit
     nonzero_digit -- . --> float
-    nonzero_digit -- WS, OP, --> end
+    nonzero_digit -- WS, OP, --> accept
     float -- [0-9] --> float
-    float -- WS, OP, . --> end
+    float -- WS, OP, . --> accept
 ```
