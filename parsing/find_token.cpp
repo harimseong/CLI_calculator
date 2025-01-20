@@ -1,11 +1,22 @@
+#include <stack>
+
 #include "tokenizer.hpp"
 
-namespace parsing
-{
+enum class state {
+  start,
+  whitespaces,
+  operators,
+  parenthesis,
+  zero,
+  nonzero_digits,
+  floating,
+  word,
+  error,
+};
 enum class type {
   whitespace,
-  parenthesis,
-  operators,
+  paren,
+  op,
   starting_zero,
   nonzero_digit,
   digit,
@@ -15,25 +26,38 @@ enum class type {
   invalid,
 };
 
-void
+state
 fsm(std::string_view::iterator& itr)
 {
-
 }
 
 std::string_view
-tokenizer::find_token(std::string_view input) const
+parsing::tokenizer::find_token(std::string_view input) const
 {
   std::string_view::iterator begin;
   std::string_view::iterator end;
 
   while (true) {
+    state  cur_state;
+
     begin = input.begin();
     end = begin;
-
-    fsm(end);
+    cur_state = fsm(end);
+    switch (cur_state) {
+      case state::whitespaces:
+        input = input.substr(end - begin, input.npos);
+        break;
+      case state::operators: /* fall-through */
+      case state::parenthesis: /* fall-through */
+      case state::zero: /* fall-through */
+      case state::nonzero_digits: /* fall-through */
+      case state::floating: /* fall-through */
+      case state::word:
+        return std::string_view(input.data(), end - begin);
+      case state::start: /* fall-through */
+      case state::error:
+        return std::string_view();
+    }
   }
-  return input.substr(0, end - begin);
+  return std::string_view{};
 }
-
-} // parsing

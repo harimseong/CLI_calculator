@@ -19,18 +19,19 @@ FSM is defined by
 ## Transition Diagram
 
 ### States
-- start
-- accept
 - whitespaces
+- operators
+- parenthesis
 - zero
 - nonzero_digits
 - floating
 - word
+- error
 
 ### Types of characters
 - whitespace
-- parenthesis
-- operators (=|+|-|\*|/)
+- paren
+- op (=|+|-|\*|/)
 - starting_zero ^0
 - nonzero_digit [1-9]
 - digit [0-9]
@@ -42,23 +43,24 @@ FSM is defined by
 
 ```mermaid
 graph TD;
-    start -- whitespace --> accept
     start -- whitespace --> whitespaces
-    start -- operators --> accept
-    start -- parenthesis --> accept
-    start -- starting_zero --> accept
+    start -- op --> operators
+    start -- paren --> parenthesis
     start -- starting_zero --> zero
     start -- nonzero_digit --> nonzero_digits
     start -- starting_char --> word
     whitespaces -- whitespace --> whitespaces
-    whitespaces -- whitespace --> accept
     zero -- dot --> floating
     nonzero_digits -- dot --> floating
     nonzero_digits -- digit --> nonzero_digits
     nonzero_digits -- digit --> accept
     floating -- digit --> floating
-    floating -- digit --> accept
     word -- character --> word
-    word -- character --> accept
-
+    whitespaces --> accept
+    operators --> accept
+    parenthesis --> accept
+    zero --> accept
+    nonzero_digits --> accept
+    floating --> accept
+    word --> accept
 ```
