@@ -67,6 +67,9 @@ re: fclean
 open:
 	@nvim -c ':tabdo let $$a=expand("%") | let $$b=substitute($$a, "cpp", "hpp", "g") | let $$c=trim($$b) | vsplit $$c' -p $(OPEN_LIST)
 
+jcd:
+	bear -- make
+
 $(NAME): $(OBJ)
 	$(CXX) $^ $(CXXFLAGS) -o $@ $(LDFLAGS)
 
