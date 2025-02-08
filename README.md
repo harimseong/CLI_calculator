@@ -1,7 +1,7 @@
 # Calculator on RDP
 This is a command-line calculator implemented on recursive descent parser(RDP).
 Purpose of the project is practicing RDP rather than making useful calculator.
-RDP code is written following strict rules as many as possible to pave the way for automatic generation of the RDP code.
+I tried to write the RDP code following some rules as strict as possible hoping for automatic generation of the RDP code in the future.
 
 ## Tokenizer
 Useful concepts for understanding and implementing tokenizer(or lexer or scanner).
