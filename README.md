@@ -15,11 +15,13 @@ FSM is defined by
 - accepting state
 
 ### Table-based Scanner
-- Character classifier table
-defines category of characters.
-e.g) \*, +, -, / belong to operator, alphabet belong to alphabet.
+- Character classifier table 
+
+    defines category of characters.
+    e.g) \*, +, -, / belong to operator, alphabet belong to alphabet.
 - Transition table
-Map a state and a character to next state.
+
+    Map a state and a character to next state.
 - Token type table
 
 ## Transition Diagram
