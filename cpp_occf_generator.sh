@@ -168,7 +168,7 @@ COMPILE_MODE:=  .RELEASE
 endif
 
 
-.PHONY: all debug clean fclean re open
+.PHONY: all debug clean fclean re open jcd
 
 all: \$(COMPILE_MODE)
 \t\$(MAKE) \$(NAME)
@@ -199,6 +199,9 @@ re: fclean
 
 open:
 \t@nvim -c ':tabdo let \$\$a=expand(\"%\") | let \$\$b=substitute(\$\$a, \"cpp\", \"hpp\", \"g\") | let \$\$c=trim(\$\$b) | vsplit \$\$c' -p \$(OPEN_LIST)
+
+jcd: # JSON Compilation Database
+\tbear -- make
 
 \$(NAME): \$(OBJ)
 \t\$(CXX) \$^ \$(CXXFLAGS) -o \$@ \$(LDFLAGS)
