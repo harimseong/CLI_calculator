@@ -21,8 +21,10 @@ FSM is defined by
     e.g) \*, +, -, / belong to operator, alphabet belong to alphabet.
 - Transition table
 
-    Map a state and a character to next state.
+    Map a pair of a state and a character to next state.
 - Token type table
+
+    One of the token types is assigned to an acquired token.
 
 ## Transition Diagram
 
