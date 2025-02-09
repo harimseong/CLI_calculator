@@ -74,9 +74,9 @@ graph TD;
     word --> accept
 ```
 
-## Syntax
+## Parser
 
-### BNF
+### BNF for parsing rules
 lowercase entry is non-terminal and uppercase entry is terminal.
 terminal is represented in either string or regular expression.
 ```
