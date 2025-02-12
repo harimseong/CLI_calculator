@@ -33,3 +33,4 @@
 
 .DEBUG
 .RELEASE
+compile_commands.json
