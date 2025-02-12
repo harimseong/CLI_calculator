@@ -2,8 +2,9 @@
 
 #include "tokenizer.hpp"
 
-enum class state {
-  start,
+enum class e_state {
+  error,
+  incomplete,
   whitespaces,
   operators,
   parenthesis,
@@ -11,9 +12,9 @@ enum class state {
   nonzero_digits,
   floating,
   word,
-  error,
 };
-enum class type {
+enum class e_type {
+  invalid,
   whitespace,
   paren,
   op,
@@ -23,12 +24,34 @@ enum class type {
   dot,
   starting_char,
   character,
-  invalid,
 };
 
-state
+e_state
 fsm(std::string_view::iterator& itr)
 {
+  // TODO: maximum much scanner
+  // (stores position of failure and use it to handle failure efficiently)
+  static std::stack<e_state> stack;
+  e_state state = e_state::incomplete;
+  e_type  type;
+
+  while (state != e_state::error) {
+    type = get_char_type(*itr++);
+    state = get_next_state(state, type);
+    if (is_accepted(state)) {
+      stack.clear();
+    }
+    stack.push(state);
+  }
+  while (stack.size() > 0 && !is_accepted(state) && state != e_state::error) {
+    state = stack.pop();
+    --itr;
+  }
+  if (is_accepted(state)) {
+    return state;
+  } else {
+    return e_state::error;
+  }
 }
 
 std::string_view
@@ -44,6 +67,7 @@ parsing::tokenizer::find_token(std::string_view input) const
     end = begin;
     cur_state = fsm(end);
     switch (cur_state) {
+      // NOTE: handle whitespaces in different loop?
       case state::whitespaces:
         input = input.substr(end - begin, input.npos);
         break;

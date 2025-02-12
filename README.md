@@ -76,6 +76,18 @@ graph TD;
     word --> accept
 ```
 
+## Tokenizer Logic
+0. Initialize a stack.
+1. Take a character from input stream. If there's no character to read, jump to 4.
+2. Look at the transition table.
+    1. If next state is an error, jump to 4.
+    2. Else if next state is acceptable, jump to 3.
+3. Clear the stack and push the current state and jump to 1.
+5. Decrement input stream pointer by one and pop a state from the stack.
+    1. If the state is acceptable or the stack is empty, jump to 5.
+    2. Else if the state is error, jump to 4.
+6. return the final state.
+
 ## Parser
 
 ### BNF for parsing rules
