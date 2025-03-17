@@ -44,8 +44,7 @@ tokenizer::get(std::string_view& input)
 token
 tokenizer::peek(std::string_view input) const
 {
-  std::string_view t = find_token(input); // end of token
-  token found_token{t};
+  token found_token = find_token(input);;
   return found_token; 
 }
 

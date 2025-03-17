@@ -319,7 +319,7 @@ parser::parse_number(std::string_view input, ast& tree)
   tree.set_type(ast_type::number);
   bool  ret0;
 
-  ret0 = tokenizer_.peek(input).type_ == token_type::number;
+  ret0 = tokenizer_.peek(input).comp_type(token_type::number);
   if (ret0 == true) {
     goto pass0;
   }
@@ -335,7 +335,7 @@ parser::parse_variable(std::string_view input, ast& tree)
   tree.set_type(ast_type::variable);
   bool  ret0;
 
-  ret0 = tokenizer_.peek(input).type_ == token_type::word;
+  ret0 = tokenizer_.peek(input).comp_type(token_type::word);
   if (ret0 == true) {
     goto pass0;
   }
@@ -353,7 +353,7 @@ parser::parse_unary_op(std::string_view input, ast& tree)
   token token0;
 
   token0 = tokenizer_.get(input);
-  ret0 = token0.type_ == token_type::unary_op;
+  ret0 = token0.comp_type(token_type::unary_op);
   if (ret0 == true) {
     goto pass0;
   }
@@ -371,7 +371,7 @@ parser::parse_additive_op(std::string_view input, ast& tree)
   token token0;
 
   token0 = tokenizer_.get(input);
-  ret0 = token0.type_ == token_type::add_op;
+  ret0 = token0.comp_type(token_type::add_op);
   if (ret0 == true) {
     goto pass0;
   }
@@ -389,7 +389,7 @@ parser::parse_multiple_op(std::string_view input, ast& tree)
   token token0;
 
   token0 = tokenizer_.get(input);
-  ret0 = token0.type_ == token_type::mul_op;
+  ret0 = token0.comp_type(token_type::mul_op);
   if (ret0 == true) {
     goto pass0;
   }
@@ -407,7 +407,7 @@ parser::parse_linebreak(std::string_view input, ast& tree)
   token token0;
 
   token0 = tokenizer_.get(input);
-  ret0 = token0.type_ == token_type::empty;
+  ret0 = token0.comp_type(token_type::empty);
   if (ret0 == true) {
     goto pass0;
   }
