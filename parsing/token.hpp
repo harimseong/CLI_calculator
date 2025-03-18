@@ -2,6 +2,7 @@
 #define TOKEN_HPP
 
 #include <string>
+#include <string_view>
 
 namespace parsing
 {
@@ -28,7 +29,7 @@ public:
     word = 0x60,
 
     invalid = 0x70,
-//  empty = 0x80
+    eol = 0x80
   };
 
   token()
@@ -36,7 +37,7 @@ public:
     type_ = type::invalid;
   };
 
-  token(const std::string& token, token::type token_type = type::invalid)
+  token(std::string_view token, token::type token_type = type::invalid)
   : data_{token},
     type_{token_type}
   {};

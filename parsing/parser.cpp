@@ -407,7 +407,7 @@ parser::parse_linebreak(std::string_view input, ast& tree)
   token token0;
 
   token0 = tokenizer_.get(input);
-  ret0 = token0.comp_type(token_type::empty);
+  ret0 = token0.comp_type(token_type::eol);
   if (ret0 == true) {
     goto pass0;
   }

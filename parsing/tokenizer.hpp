@@ -22,7 +22,7 @@ public:
   token peek(std::string_view input) const;
   void  consume(std::string_view& input);
 
-  token test_find_token(void) const;
+  void  test_find_token(void);
 };
 
 }

@@ -1,3 +1,4 @@
+#include <iostream>
 #include <vector>
 
 #include "token.hpp"
@@ -94,6 +95,10 @@ get_next_state(e_state state, e_char char_type)
         return e_state::word;
       }
       return e_state::error;
+
+    default:
+      return e_state::error;
+
   };
 }
 
@@ -115,25 +120,26 @@ is_accepted(e_state state)
 }
 
 static e_state
-fsm(std::string_view::iterator& itr)
+fsm(std::string_view::iterator& itr, const std::string_view::iterator end)
 {
   // TODO: maximal munch scanner
   // TODO: stores position of failure and use it to handle failure efficiently
-  std::vector<e_state> stack{e_state::error};
+  std::vector<e_state> stack;
   e_state state = e_state::start;
   e_char  char_type;
 
-  while (state != e_state::error) {
-    char_type = char_table[*itr++];
+  // NOTE: assumes null-terminated string
+  while (itr != end && state != e_state::error) {
+    char_type = char_table[static_cast<int>(*itr++)];
     state = get_next_state(state, char_type);
     if (is_accepted(state)) {
       stack.clear();
     }
     stack.push_back(state);
   }
-  while (!is_accepted(state) && state != e_state::error) {
-    state = stack.back();
+  while (stack.size() > 0 && !is_accepted(state)) {
     stack.pop_back();
+    state = stack.back();
     --itr;
   }
   if (is_accepted(state)) {
@@ -147,18 +153,18 @@ parsing::token
 parsing::tokenizer::find_token(std::string_view input) const
 {
   std::string_view::iterator  begin;
-  std::string_view::iterator  end;
+  std::string_view::iterator  token_end;
   token::type token_type;
   e_state     cur_state;
 
-  while (true) {
+  while (input.size() > 0) {
     begin = input.begin();
-    end = begin;
-    cur_state = fsm(end);
+    token_end = begin;
+    cur_state = fsm(token_end, input.end());
     switch (cur_state) {
       // NOTE: handle whitespaces in different loop?
       case e_state::whitespaces:
-        input = input.substr(end - begin, input.npos);
+        input = input.substr(token_end - begin, input.npos);
         continue;
       case e_state::operators:
         token_type = token::type::op;
@@ -182,7 +188,8 @@ parsing::tokenizer::find_token(std::string_view input) const
       case e_state::error:
         return token{};
     }
-    return parsing::token{std::string_view(input.data(), end - begin), token_type};
+    token new_token{std::string_view(input.data(), token_end - begin), token_type};
+    return new_token;
   }
   return token{};
 }

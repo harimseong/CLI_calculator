@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "tokenizer.hpp"
 
@@ -39,16 +40,11 @@ tokenizer::consume(std::string_view& input)
 }
 
 void
-test_find_token(void)
+tokenizer::test_find_token(void)
 {
   typedef token::type token_type;
 
-  const std::vector<std::string, std::vector<token>> test = {
-    {"", {"a"}},
-    {"", {"a"}},
-  };
-
-  const std::vector<std::string, std::vector<token>> test_cases = {
+  const std::vector<std::pair<std::string, std::vector<token>>> test_cases = {
     {"", {{"", token_type::invalid}}},
     {" ", {{"", token_type::invalid}}},
     {"a", {{"a", token_type::word}}},
@@ -89,8 +85,26 @@ test_find_token(void)
     {"0.123", {{"0.123", token_type::floating}}},
   };
 
-  for (int i = 0; i < test_cases.size(); ++i) {
+  int count = 0;
+  std::cout << "test_find_token\n";
+  for (auto& tc: test_cases) {
+    std::string_view str = tc.first;
+    auto& answers = tc.second;
+    token tkn;
 
+    std::cout << count << ": " << str << '\n';
+    for (auto& answer: answers) {
+      tkn = find_token(str);
+      if (tkn.data_ != answer.data_ || tkn.comp_type(answer.type_) == false) {
+        std::cout << " X [" << tkn.data_ << ',' << static_cast<int>(tkn.type_) << "] != [";
+        std::cout << answer.data_ << ',' << static_cast<int>(answer.type_) << "]\n";
+        break;
+      } else {
+        std::cout << " O [" << tkn.data_ << ',' << static_cast<int>(tkn.type_) << "]\n";
+      }
+      
+    }
+    ++count;
   }
 }
 

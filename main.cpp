@@ -14,7 +14,9 @@ int main(int argc, char** argv)
   (void)argv;
   // parse argv[1] and if it is valid expression, solve it.
   parsing::ast t;
+  parsing::tokenizer  tkn;
 
+  tkn.test_find_token();
   //parsing::parse(argv[1], t);
   //computing::analyze(t);
   //computing::data solution = computing::compute(t);
