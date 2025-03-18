@@ -10,17 +10,19 @@ namespace parsing
 class   tokenizer
 {
 public:
-  tokenizer();
-  ~tokenizer();
+  tokenizer() {};
+  ~tokenizer() {};
 private:
-  tokenizer(const tokenizer&);
-  tokenizer	&operator=(const tokenizer&);
+  tokenizer(const tokenizer&) = delete;
+  tokenizer	&operator=(const tokenizer&) = delete;
 
   token find_token(std::string_view input) const;
 public:
   token get(std::string_view& input);
   token peek(std::string_view input) const;
   void  consume(std::string_view& input);
+
+  token test_find_token(void) const;
 };
 
 }

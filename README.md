@@ -64,7 +64,6 @@ graph TD;
     zero -- dot --> floating
     nonzero_digits -- dot --> floating
     nonzero_digits -- digit --> nonzero_digits
-    nonzero_digits -- digit --> accept
     floating -- digit --> floating
     word -- character --> word
     whitespaces --> accept

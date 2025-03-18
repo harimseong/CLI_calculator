@@ -1,7 +1,7 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
 
-#include <string_view>
+#include <string>
 
 namespace parsing
 {
@@ -21,10 +21,9 @@ public:
     function = 0x40,
 
     number = 0x50,
-    digit = 0x51,
-    zero = 0x52,
-    nonzero_digit = 0x53,
-    floating,
+    zero = 0x51,
+    nonzero_digit = 0x52,
+    floating = 0x53,
 
     word = 0x60,
 
@@ -37,7 +36,7 @@ public:
     type_ = type::invalid;
   };
 
-  token(std::string_view token, token::type token_type = type::invalid)
+  token(const std::string& token, token::type token_type = type::invalid)
   : data_{token},
     type_{token_type}
   {};
@@ -68,8 +67,8 @@ public:
   };
 
 
-  std::string_view  data_;
-  type              type_;
+  std::string data_;
+  type        type_;
 };
 
 }
