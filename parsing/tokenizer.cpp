@@ -16,6 +16,9 @@ tokenizer::get(std::string_view& input)
   token new_token = peek(input);
   size_t token_size = new_token.data_.size();
   input = input.substr(token_size, input.size() - token_size);
+  if (new_token.comp_type(token::type::whitespace)) {
+    new_token = get(input);
+  }
   return new_token;
 }
 
@@ -48,34 +51,36 @@ tokenizer::test_find_token(void)
     {"", {{"", token_type::invalid}}},
     {" ", {{"", token_type::invalid}}},
     {"a", {{"a", token_type::word}}},
+    {" a ", {{"a", token_type::word}}},
     {"abc", {{"abc", token_type::word}}},
-    {"1", {{"1", token_type::nonzero_digit}}},
+    {"1", {{"1", token_type::integer}}},
+    {" 1 ", {{"1", token_type::integer}}},
     {"-1",
       {
         {"-", token_type::unary_op},
-        {"1", token_type::nonzero_digit},
+        {"1", token_type::integer},
       }
     },
     {"1+23",
       {
-        {"1", token_type::nonzero_digit},
+        {"1", token_type::integer},
         {"+", token_type::unary_op},
-        {"23", token_type::nonzero_digit},
+        {"23", token_type::integer},
       }
     },
     {"-1+23",
       {
         {"-", token_type::unary_op},
-        {"1", token_type::nonzero_digit},
+        {"1", token_type::integer},
         {"+", token_type::add_op},
-        {"2", token_type::nonzero_digit},
+        {"23", token_type::integer},
       }
     },
     {" 12 + 3 ",
       {
-        {"12", token_type::nonzero_digit},
+        {"12", token_type::integer},
         {"+", token_type::add_op},
-        {"3", token_type::nonzero_digit},
+        {"3", token_type::integer},
       }
     },
     {"0", {{"0", token_type::zero}}},
@@ -92,18 +97,19 @@ tokenizer::test_find_token(void)
     auto& answers = tc.second;
     token tkn;
 
-    std::cout << count << ": " << str << '\n';
+    std::ios_base::fmtflags ff = std::cout.flags(std::ios_base::hex);
+    std::cout << count << ": \"" << str << "\"\n";
     for (auto& answer: answers) {
-      tkn = find_token(str);
-      if (tkn.data_ != answer.data_ || tkn.comp_type(answer.type_) == false) {
-        std::cout << " X [" << tkn.data_ << ',' << static_cast<int>(tkn.type_) << "] != [";
-        std::cout << answer.data_ << ',' << static_cast<int>(answer.type_) << "]\n";
+      tkn = get(str);
+      if (tkn.data_ != answer.data_ || tkn.comp_type(answer.type_pack_) == false) {
+        std::cout << " X [" << tkn.data_ << ',' << static_cast<int>(tkn.type_pack_) << "] != [";
+        std::cout << answer.data_ << ',' << static_cast<int>(answer.type_pack_) << "]\n";
         break;
       } else {
-        std::cout << " O [" << tkn.data_ << ',' << static_cast<int>(tkn.type_) << "]\n";
+        std::cout << " O [" << tkn.data_ << ',' << static_cast<int>(tkn.type_pack_) << "]\n";
       }
-      
     }
+    std::cout.flags(ff);
     ++count;
   }
 }

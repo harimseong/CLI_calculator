@@ -1,4 +1,3 @@
-#include <iostream>
 #include <vector>
 
 #include "token.hpp"
@@ -154,8 +153,8 @@ parsing::tokenizer::find_token(std::string_view input) const
 {
   std::string_view::iterator  begin;
   std::string_view::iterator  token_end;
-  token::type token_type;
-  e_state     cur_state;
+  token::type_pack  token_type;
+  e_state           cur_state;
 
   while (input.size() > 0) {
     begin = input.begin();
@@ -164,26 +163,43 @@ parsing::tokenizer::find_token(std::string_view input) const
     switch (cur_state) {
       // NOTE: handle whitespaces in different loop?
       case e_state::whitespaces:
-        input = input.substr(token_end - begin, input.npos);
-        continue;
+        token_type = token::type::whitespace;
+        break;
+
       case e_state::operators:
         token_type = token::type::op;
+        switch (input.front()) {
+          case '+': /* fall-through */
+          case '-':
+            token_type |= token::type::add_op;
+            token_type |= token::type::unary_op;
+            break;
+          case '*': /* fall-through */
+          case '/':
+            token_type |= token::type::mul_op;
+        };
         break;
+
       case e_state::parenthesis:
         token_type = token::type::parenthesis;
         break;
+
       case e_state::zero:
         token_type = token::type::zero;
         break;
+
       case e_state::nonzero_digits:
-        token_type = token::type::nonzero_digit;
+        token_type = token::type::integer;
         break;
+
       case e_state::floating:
         token_type = token::type::floating;
         break;
+
       case e_state::word:
         token_type = token::type::word;
         break;
+
       case e_state::start: /* fall-through */
       case e_state::error:
         return token{};

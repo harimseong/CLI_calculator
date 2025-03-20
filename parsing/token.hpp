@@ -9,37 +9,40 @@ namespace parsing
 class  token
 {
 public:
-  enum class type {
-    equal = 0x10,
+  typedef uint32_t type_pack;
+  typedef enum type {
+    equal = 0x100,
 
-    parenthesis = 0x20,
+    parenthesis = 0x200,
 
-    op = 0x30,
-    unary_op = 0x31,
-    add_op = 0x32,
-    mul_op = 0x33,
+    op = 0x300,
+    unary_op = 0x301,
+    add_op = 0x302,
+    mul_op = 0x304,
 
-    function = 0x40,
+    function = 0x400,
 
-    number = 0x50,
-    zero = 0x51,
-    nonzero_digit = 0x52,
-    floating = 0x53,
+    number = 0x500,
+    zero = 0x501,
+    integer = 0x502,
+    floating = 0x504,
 
-    word = 0x60,
+    word = 0x600,
 
-    invalid = 0x70,
-    eol = 0x80
-  };
+    invalid = 0x700,
+    whitespace = 0x701,
+    eol = 0x800,
+    mask = 0xff,
+  } type;
 
   token()
   {
-    type_ = type::invalid;
+    type_pack_ = type::invalid;
   };
 
-  token(std::string_view token, token::type token_type = type::invalid)
+  token(std::string_view token, token::type_pack token_type = type::invalid)
   : data_{token},
-    type_{token_type}
+    type_pack_{token_type}
   {};
 
   ~token() {};
@@ -51,25 +54,27 @@ public:
   token	&operator=(const token& t)
   {
     data_ = t.data_;
-    type_ = t.type_;
+    type_pack_ = t.type_pack_;
     return *this;
   };
 
-  bool  comp_type(type arg)
+  bool  comp_type(type_pack arg)
   {
-    uint8_t operand0 = static_cast<uint8_t>(type_);
-    uint8_t operand1 = static_cast<uint8_t>(arg);
+    uint32_t  operand0 = type_pack_;
+    uint32_t  operand1 = arg;
 
-    if ((operand1 & 0xf) == 0)
-    {
-      return (operand0 & ~0xf) == (operand1 & ~0xf);
+    if ((operand0 & ~type::mask) != (operand1 & ~type::mask)) {
+      return false;
     }
-    return type_ == arg;
+    if ((operand1 & type::mask) == 0) {
+      return true;
+    }
+    return (operand0 & type::mask) & (operand1 & type::mask);
   };
 
 
   std::string data_;
-  type        type_;
+  type_pack   type_pack_;
 };
 
 }
