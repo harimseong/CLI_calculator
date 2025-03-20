@@ -156,56 +156,53 @@ parsing::tokenizer::find_token(std::string_view input) const
   token::type_pack  token_type;
   e_state           cur_state;
 
-  while (input.size() > 0) {
-    begin = input.begin();
-    token_end = begin;
-    cur_state = fsm(token_end, input.end());
-    switch (cur_state) {
-      // NOTE: handle whitespaces in different loop?
-      case e_state::whitespaces:
-        token_type = token::type::whitespace;
-        break;
+  begin = input.begin();
+  token_end = begin;
+  cur_state = fsm(token_end, input.end());
+  switch (cur_state) {
+    // NOTE: handle whitespaces in different loop?
+    case e_state::whitespaces:
+      token_type |= token::type::whitespace;
+      break;
 
-      case e_state::operators:
-        token_type = token::type::op;
-        switch (input.front()) {
-          case '+': /* fall-through */
-          case '-':
-            token_type |= token::type::add_op;
-            token_type |= token::type::unary_op;
-            break;
-          case '*': /* fall-through */
-          case '/':
-            token_type |= token::type::mul_op;
-        };
-        break;
+    case e_state::operators:
+      token_type |= token::type::op;
+      switch (input.front()) {
+        case '+': /* fall-through */
+        case '-':
+          token_type |= token::type::add_op;
+          token_type |= token::type::unary_op;
+          break;
+        case '*': /* fall-through */
+        case '/':
+          token_type |= token::type::mul_op;
+      };
+      break;
 
-      case e_state::parenthesis:
-        token_type = token::type::parenthesis;
-        break;
+    case e_state::parenthesis:
+      token_type |= token::type::parenthesis;
+      break;
 
-      case e_state::zero:
-        token_type = token::type::zero;
-        break;
+    case e_state::zero:
+      token_type |= token::type::zero;
+      break;
 
-      case e_state::nonzero_digits:
-        token_type = token::type::integer;
-        break;
+    case e_state::nonzero_digits:
+      token_type |= token::type::integer;
+      break;
 
-      case e_state::floating:
-        token_type = token::type::floating;
-        break;
+    case e_state::floating:
+      token_type |= token::type::floating;
+      break;
 
-      case e_state::word:
-        token_type = token::type::word;
-        break;
+    case e_state::word:
+      token_type |= token::type::word;
+      break;
 
-      case e_state::start: /* fall-through */
-      case e_state::error:
-        return token{};
-    }
-    token new_token{std::string_view(input.data(), token_end - begin), token_type};
-    return new_token;
+    case e_state::start: /* fall-through */
+    case e_state::error:
+      return token{};
   }
-  return token{};
+  token new_token{std::string_view(input.data(), token_end - begin), token_type};
+  return new_token;
 }

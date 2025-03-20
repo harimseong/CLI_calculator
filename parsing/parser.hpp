@@ -37,6 +37,8 @@ public:
   bool    parse_linebreak(std::string_view input, ast& tree);
 
 private:
+  void    error(std::string_view function, std::string_view input);
+
   tokenizer tokenizer_;
 };
 

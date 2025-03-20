@@ -93,7 +93,7 @@ graph TD;
 lowercase entry is non-terminal and uppercase entry is terminal.
 terminal is represented in either string or regular expression.
 ```
-input           : linebreak
+input           : LINEBREAK
                 | assignment LINEBREAK // v2 feature
                 | equation LINEBREAK
                 | expression LINEBREAK
@@ -111,7 +111,7 @@ additive_exp    : multiple_exp ADDITIVE_OP additive_exp
 multiple_exp    : power MULTIPLE_OP multiple_exp
                 | power 
                 ;
-power           : term '^' power
+power           : term '^' term
                 | term
                 ;
 term            : '(' term ')'
