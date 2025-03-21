@@ -11,6 +11,9 @@ class  token
 public:
   typedef uint32_t type_pack;
   typedef enum type {
+    invalid = 0x000,
+    whitespace = 0x001,
+
     equal = 0x100,
 
     parenthesis = 0x200,
@@ -29,8 +32,6 @@ public:
 
     word = 0x600,
 
-    invalid = 0x700,
-    whitespace = 0x701,
     eol = 0x800,
     mask = 0xff,
   } type;

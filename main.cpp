@@ -18,9 +18,10 @@ int main(int argc, char** argv)
   }
   parsing::ast t;
   parsing::parser p;
+  std::string_view  input(argv[1]);
 
   // parse argv[1] and if it is valid expression, solve it.
-  if (p.parse(argv[1], t) == false) {
+  if (p.parse(input, t) == false) {
     std::cerr << argv[0] << ": invalid input\n";
     return 1;
   }

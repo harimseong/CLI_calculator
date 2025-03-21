@@ -153,9 +153,12 @@ parsing::tokenizer::find_token(std::string_view input) const
 {
   std::string_view::iterator  begin;
   std::string_view::iterator  token_end;
-  token::type_pack  token_type;
+  token::type_pack  token_type = token::type::invalid;
   e_state           cur_state;
 
+  if (input.size() == 0) {
+    return token{"",token::type::eol};
+  }
   begin = input.begin();
   token_end = begin;
   cur_state = fsm(token_end, input.end());
