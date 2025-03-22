@@ -6,10 +6,10 @@ UNARY_OPERATORS="-+"
 UNARY_OPS_SIZE=2
 LOWER_LIMIT=-100
 UPPER_LIMIT=100
-NUMBERS=20
+NUMBERS=4
 
 EXPRESSION=$(shuf -n 1 -i 0-$((UPPER_LIMIT - LOWER_LIMIT)))
-while [ $NUMBERS -gt 0 ]; do
+while [ $NUMBERS -gt 1 ]; do
   NUM=$(shuf -n 1 -i 0-$((UPPER_LIMIT - LOWER_LIMIT)))
   NUM=$((NUM + $LOWER_LIMIT))
   if [ $NUM -lt 0 ]; then
