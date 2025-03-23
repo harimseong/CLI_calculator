@@ -101,7 +101,7 @@ public:
   $CLASS(const $CLASS&);
 
 // operators
-  $CLASS\t&operator=(const $CLASS&);
+  $CLASS&\toperator=(const $CLASS&);
 
 // member functions
 };$NAMESPACE_END

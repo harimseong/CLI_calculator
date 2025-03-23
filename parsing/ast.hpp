@@ -1,7 +1,7 @@
 #ifndef AST_HPP
 #define AST_HPP
 
-#include <string_view>
+#include <string>
 #include <vector>
 
 namespace parsing
@@ -31,8 +31,7 @@ public:
   ast();
   ~ast();
   ast(const ast& node);
-
-  ast	&operator=(const ast& node);
+  ast&  operator=(const ast& node);
 
   void  set_type(type type);
   type  get_type(void) const;
@@ -41,10 +40,11 @@ public:
   std::string_view  get_data(void) const;
 
   void  insert(ast node);
+  void  traverse(void);
 
 private:
   type              type_;
-  std::string_view  data_;
+  std::string       data_; // NOTE: string_view compile error?
   std::vector<ast>  nodes_;
 };
 

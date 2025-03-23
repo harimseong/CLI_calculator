@@ -45,6 +45,7 @@ parser::parse(std::string_view& input_orig, ast& tree)
   depth = 0;
   COMMON_START;
   tree.set_type(ast_type::input);
+
   std::string_view  input = input_orig;
   bool  ret0;
   ast   node0;
