@@ -94,7 +94,7 @@ static const e_char  char_table[128] =
   /* [ */ e_char::invalid,
   /* \ */ e_char::invalid,
   /* ] */ e_char::invalid,
-  /* ^ */ e_char::invalid,
+  /* ^ */ e_char::operators,
   /* _ */ e_char::word_starter,
   /* ` */ e_char::invalid,
   /* a */ e_char::word_starter,

@@ -13,12 +13,14 @@ namespace parsing
 token
 tokenizer::get(std::string_view& input)
 {
-  token new_token = peek(input);
-  size_t token_size = new_token.data_.size();
+  token new_token;
+  size_t token_size;
+
+  do {
+  new_token = find_token(input);
+  token_size = new_token.data_.size();
   input = input.substr(token_size, input.size() - token_size);
-  if (new_token.comp_type(token::type::whitespace)) {
-    new_token = get(input);
-  }
+  } while (new_token.comp_type(token::type::whitespace) == true);
   return new_token;
 }
 
@@ -27,10 +29,9 @@ tokenizer::get(std::string_view& input)
  * input is copied so that original input will not be changed.
  */
 token
-tokenizer::peek(std::string_view input) const
+tokenizer::peek(std::string_view input)
 {
-  token found_token = find_token(input);;
-  return found_token; 
+  return get(input); 
 }
 
 /*

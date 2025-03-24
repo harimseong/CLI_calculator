@@ -162,7 +162,7 @@ fsm(std::string_view::iterator& itr, const std::string_view::iterator end)
 }
 
 parsing::token
-parsing::tokenizer::find_token(std::string_view input) const
+parsing::tokenizer::find_token(std::string_view input)
 {
   std::string_view::iterator  begin;
   std::string_view::iterator  token_end;
@@ -193,6 +193,12 @@ parsing::tokenizer::find_token(std::string_view input) const
         case '*': /* fall-through */
         case '/':
           token_type |= token::type::mul_op;
+          break;
+        case '^':
+          token_type |= token::type::op;
+          break;
+        default:
+          token_type = token::type::invalid;
       };
       break;
 
