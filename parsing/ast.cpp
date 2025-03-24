@@ -76,11 +76,11 @@ ast::traverse(void)
     if (node->nodes_.size() == 0) {
       std::cout << "terminal\n";
     }
-    std::cout << node->id_ << ": type=" << type_string(node->type_) << ", data=" << node->data_ << '\n';
+    std::cout << node->id_ << ": [" << type_string(node->type_) << ", \"" << node->data_ << "\"]\n";
     for (auto& child: node->nodes_) {
       child.id_ = ++count;
       std::cout << "-> ";
-      std::cout << child.id_ << ": type=" << type_string(child.type_) << ", data=" << child.data_ << '\n';
+      std::cout << node->id_ << ": [" << type_string(child.type_) << ", \"" << child.data_ << "\"]\n";
       ast_queue.push(&child);
     }
     std::cout << "\n";
