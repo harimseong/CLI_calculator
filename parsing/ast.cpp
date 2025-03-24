@@ -76,11 +76,11 @@ ast::traverse(void)
     if (node->nodes_.size() == 0) {
       std::cout << "terminal\n";
     }
-    std::cout << node->id_ << ": type=" << static_cast<int>(node->type_) << ", data=" << node->data_ << '\n';
+    std::cout << node->id_ << ": type=" << type_string(node->type_) << ", data=" << node->data_ << '\n';
     for (auto& child: node->nodes_) {
       child.id_ = ++count;
       std::cout << "-> ";
-      std::cout << child.id_ << ": type=" << static_cast<int>(child.type_) << ", data=" << child.data_ << '\n';
+      std::cout << child.id_ << ": type=" << type_string(child.type_) << ", data=" << child.data_ << '\n';
       ast_queue.push(&child);
     }
     std::cout << "\n";
@@ -88,6 +88,68 @@ ast::traverse(void)
       layer_size = ast_queue.size();
     }
   }
+}
+
+std::string_view
+ast::type_string(type t)
+{
+  static const std::string  type_strings[] = {
+    "empty",
+    "input",
+    "equation",
+    "assignment",
+    "expression",
+    "unary_exp",
+    "additive_exp",
+    "multiple_exp",
+    "term",
+    "function",
+    "power",
+    "trigonometric",
+    "unary_op",
+    "additive_op",
+    "multiple_op",
+    "number",
+    "variable",
+  };
+
+  switch (t) {
+    case type::empty:
+      return type_strings[0];
+    case type::input:
+      return type_strings[1];
+    case type::equation:
+      return type_strings[2];
+    case type::assignment:
+      return type_strings[3];
+    case type::expression:
+      return type_strings[4];
+    case type::unary_exp:
+      return type_strings[5];
+    case type::additive_exp:
+      return type_strings[6];
+    case type::multiple_exp:
+      return type_strings[7];
+    case type::term:
+      return type_strings[8];
+    case type::function:
+      return type_strings[9];
+    case type::power:
+      return type_strings[10];
+    case type::trigonometric:
+      return type_strings[11];
+    case type::unary_op:
+      return type_strings[12];
+    case type::additive_op:
+      return type_strings[13];
+    case type::multiple_op:
+      return type_strings[14];
+    case type::number:
+      return type_strings[15];
+    case type::variable:
+      return type_strings[16];
+  };
+  return "error";
 }
 
 } // parsing

@@ -42,6 +42,8 @@ public:
 
   void  insert(ast node);
   void  traverse(void);
+private:
+  std::string_view type_string(type t);
 
 private:
   size_t            id_ = 0;

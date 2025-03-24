@@ -94,7 +94,7 @@ parser::parse_equation(std::string_view& input_orig, ast& tree)
   bool  ret0;
   ast   node0;
 
-  ret0 = parse_expression(input, node0) == false;
+  ret0 = parse_expression(input, node0);
   if (ret0 == true) {
     goto pass0;
   }
@@ -216,9 +216,9 @@ pass1:
   ERROR(input);
   return false;
 pass2:
-  node1.insert(node0);
-  node1.insert(node2);
-  tree.insert(node1);
+  tree.insert(node0);
+  tree.insert(node2);
+  tree.set_data(node1.get_data());
   SUCCESS(tree);
   return true;
 }
@@ -260,9 +260,9 @@ pass1:
   ERROR(input);
   return false;
 pass2:
-  node1.insert(node0);
-  node1.insert(node2);
-  tree.insert(node1);
+  tree.insert(node0);
+  tree.insert(node2);
+  tree.set_data(node1.get_data());
   SUCCESS(tree);
   return true;
 }
@@ -336,7 +336,7 @@ pass0:
       ERROR(input);
       return false;
     }
-    tree.insert(node0);
+    tree = node0;
     SUCCESS(tree);
     return true;
   }
@@ -358,7 +358,7 @@ pass0:
   ERROR(input);
   return false;
 pass1:
-  tree.insert(node2);
+  tree = node2;
   SUCCESS(tree);
   return true;
 }
