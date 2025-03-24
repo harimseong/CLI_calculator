@@ -1,4 +1,4 @@
-# Calculator on RDP
+# Command-line Calculator
 This is a command-line calculator implemented on recursive descent parser(RDP).
 Purpose of the project is practicing RDP rather than making useful calculator.
 I tried to write the RDP code following some rules as strict as possible hoping for automatic generation of the RDP code in the future.
