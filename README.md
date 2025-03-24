@@ -30,6 +30,7 @@ FSM is defined by
 
 ### States
 - whitespaces
+- minus
 - operators
 - parenthesis
 - zero
@@ -41,13 +42,13 @@ FSM is defined by
 ### Types of characters
 - whitespace
 - paren
-- op (=|+|-|\*|/)
-- starting_zero ^0
+- minus -
+- op (=|+|\*|/)
+- zero 0
 - nonzero_digit [1-9]
-- digit [0-9]
 - dot .
-- starting_char ^([a-z]|[A-Z]|\_)
-- character [a-z]|[A-Z]|[0-9]|\_)
+- word_starter ([a-z]|[A-Z]|\_)
+- char [a-z]|[A-Z]|[0-9]|\_)
 - invalid
 
 
@@ -55,18 +56,22 @@ A state -- a type of character --> next state
 ```mermaid
 graph TD;
     start -- whitespace --> whitespaces
+    start -- minus --> minus
     start -- op --> operators
     start -- paren --> parenthesis
-    start -- starting_zero --> zero
+    start -- zero --> zero
     start -- nonzero_digit --> nonzero_digits
-    start -- starting_char --> word
+    start -- word_starter --> word
+
     whitespaces -- whitespace --> whitespaces
     zero -- dot --> floating
     nonzero_digits -- dot --> floating
     nonzero_digits -- digit --> nonzero_digits
     floating -- digit --> floating
-    word -- character --> word
+    word -- char --> word
+
     whitespaces --> accept
+    minus --> accept
     operators --> accept
     parenthesis --> accept
     zero --> accept
@@ -102,7 +107,10 @@ assignment      : VARIABLE '=' expression
                 ;
 equation        : expression '=' expression
                 ;
-expression      : additive_exp
+expression      : unary_exp
+                ;
+unary_exp       : UNARY_OP additive_exp
+                | additive_exp
                 ;
 additive_exp    : multiple_exp ADDITIVE_OP additive_exp
                 | multiple_exp
@@ -114,7 +122,7 @@ power           : term '^' term
                 | term
                 ;
 term            : '(' expression ')'
-                | '(' UNARY_OP term ')'
+                | '(' term ')'
                 | NUMBER
                 | VARIABLE
                 | function
@@ -125,10 +133,10 @@ trigonometric   : 'cos(' expression ')'
                 | 'sin(' expression ')'
                 | 'tan(' expression ')'
                 ;
-UNARY_OP        : '+'
+ADDITIVE_OP     : '+'
                 | '-'
                 ;
-ADDITIVE_OP     : '+'
+UNARY_OP        : '+'
                 | '-'
                 ;
 MULTIPLE_OP     : '*'

@@ -15,6 +15,7 @@ public:
     equation,
     assignment,
     expression,
+    unary_exp,
     additive_exp,
     multiple_exp,
     term,
@@ -43,6 +44,7 @@ public:
   void  traverse(void);
 
 private:
+  size_t            id_ = 0;
   type              type_;
   std::string       data_; // NOTE: string_view compile error?
   std::vector<ast>  nodes_;

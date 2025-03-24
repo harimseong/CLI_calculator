@@ -1,3 +1,4 @@
+#include <queue>
 #include <iostream>
 
 #include "ast.hpp"
@@ -63,33 +64,30 @@ ast::get_data(void) const
 void
 ast::traverse(void)
 {
-  for (auto& child: nodes_) {
-    child.traverse();
-  }
-  if (data_.size() > 0) {
-    std::cout << data_ << ' ';
-  }
-  /* BFS
   std::queue<ast*>  ast_queue;
   ast*              node;
   size_t            layer_size = 1;
+  size_t            count = 0;
 
   ast_queue.push(this);
   while (ast_queue.size() != 0) {
     node = ast_queue.front();
     ast_queue.pop();
+    if (node->nodes_.size() == 0) {
+      std::cout << "terminal\n";
+    }
+    std::cout << node->id_ << ": type=" << static_cast<int>(node->type_) << ", data=" << node->data_ << '\n';
     for (auto& child: node->nodes_) {
-      if (child.data_.size() > 0) {
-        std::cout << child.data_ << " ";
-      }
+      child.id_ = ++count;
+      std::cout << "-> ";
+      std::cout << child.id_ << ": type=" << static_cast<int>(child.type_) << ", data=" << child.data_ << '\n';
       ast_queue.push(&child);
     }
+    std::cout << "\n";
     if (--layer_size == 0) {
       layer_size = ast_queue.size();
-      std::cout << "\n";
     }
   }
-  */
 }
 
 } // parsing

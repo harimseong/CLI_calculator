@@ -7,6 +7,7 @@ enum class e_state {
   error,
   start,
   whitespaces,
+  minus,
   operators,
   parenthesis,
   zero,
@@ -19,10 +20,12 @@ enum class e_char {
   invalid,
   whitespace,
   parenthesis,
+  minus,
   operators,
   zero,
   nonzero_digit,
   dot,
+  word_starter, 
   character,
 };
 
@@ -39,16 +42,25 @@ get_next_state(e_state state, e_char char_type)
       switch (char_type) {
         case e_char::whitespace:
           return e_state::whitespaces;
+
+        case e_char::minus:
+          return e_state::minus;
+
         case e_char::operators:
           return e_state::operators;
+
         case e_char::parenthesis:
           return e_state::parenthesis;
+
         case e_char::zero:
           return e_state::zero;
+
         case e_char::nonzero_digit:
           return e_state::nonzero_digits;
-        case e_char::character:
+
+        case e_char::word_starter:
           return e_state::word;
+
         default:
           return e_state::error;
       };
@@ -59,6 +71,7 @@ get_next_state(e_state state, e_char char_type)
       }
       return e_state::error;
 
+    case e_state::minus:
     case e_state::operators:
       return e_state::error;
 
@@ -83,22 +96,21 @@ get_next_state(e_state state, e_char char_type)
       };
 
     case e_state::floating:
-      if (char_type == e_char::nonzero_digit ||
-          char_type == e_char::zero) {
+      if (char_type == e_char::nonzero_digit
+          || char_type == e_char::zero) {
         return e_state::floating;
       }
       return e_state::error;
 
     case e_state::word:
-      if (char_type == e_char::character) {
+      if (char_type == e_char::word_starter
+          || char_type == e_char::zero
+          || char_type == e_char::nonzero_digit) {
         return e_state::word;
       }
       return e_state::error;
-
-    default:
-      return e_state::error;
-
   };
+  return e_state::error;
 }
 
 static bool
@@ -106,6 +118,7 @@ is_accepted(e_state state)
 {
   switch (state) {
     case e_state::whitespaces:
+    case e_state::minus:
     case e_state::operators:
     case e_state::parenthesis:
     case e_state::zero:
@@ -168,6 +181,7 @@ parsing::tokenizer::find_token(std::string_view input) const
       token_type |= token::type::whitespace;
       break;
 
+    case e_state::minus: /* fall-through */
     case e_state::operators:
       token_type |= token::type::op;
       switch (input.front()) {

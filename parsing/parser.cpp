@@ -138,13 +138,42 @@ bool
 parser::parse_expression(std::string_view& input_orig, ast& tree)
 {
   COMMON_START;
-//tree.set_type(ast_type::expression);
+  tree.set_type(ast_type::expression);
   std::string_view  input = input_orig;
-  bool ret = parse_additive_exp(input, tree);
+  bool ret = parse_unary_exp(input, tree);
 
   if (ret == false) {
     ERROR(input);
     return false;
+  }
+  SUCCESS(tree);
+  return true;
+}
+
+bool
+parser::parse_unary_exp(std::string_view& input_orig, ast& tree)
+{
+  COMMON_START;
+  tree.set_type(ast_type::unary_exp);
+  std::string_view  input = input_orig;
+  bool  ret0;
+  bool  ret1;
+  ast   node0;
+  ast   node1;
+
+  ret0 = parse_unary_op(input, node0);
+  ret1 = parse_additive_exp(input, node1);
+  if (ret1 == true) {
+    goto pass2;
+  }
+  ERROR(input);
+  return false;
+pass2:
+  if (ret0 == true) {
+    tree.insert(node1);
+    tree.set_data(node0.get_data());
+  } else {
+    tree = node1;
   }
   SUCCESS(tree);
   return true;
@@ -295,19 +324,11 @@ parser::parse_term(std::string_view& input_orig, ast& tree)
       goto pass0;
     }
 
-    ret0 = parse_unary_op(input, node0);
+    ret0 = parse_term(input, node0);
     if (ret0 == true) {
-      ast   node1;
-      bool  ret1;
-
-      ret1 = parse_term(input, node1);
-      if (ret1 == true) {
-        node0.insert(node1);
-        goto pass0;
-      }
-      ERROR(input);
-      return false;
+      goto pass0;
     }
+    
     ERROR(input);
     return false;
 pass0:
