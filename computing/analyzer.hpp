@@ -10,10 +10,10 @@ public:
 // constructors & destructor
   analyzer();
   ~analyzer();
-  analyzer(const analyzer&);
+  analyzer(const analyzer&) = delete;
 
 // operators
-  analyzer	&operator=(const analyzer&);
+  analyzer	&operator=(const analyzer&) = delete;
 
 // member functions
 };

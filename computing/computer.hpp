@@ -10,10 +10,10 @@ public:
 // constructors & destructor
   computer();
   ~computer();
-  computer(const computer&);
+  computer(const computer&) = delete;
 
 // operators
-  computer	&operator=(const computer&);
+  computer	&operator=(const computer&) = delete;
 
 // member functions
 };

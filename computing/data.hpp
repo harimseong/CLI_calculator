@@ -1,6 +1,8 @@
 #ifndef DATA_HPP
 #define DATA_HPP
 
+#include <cstdint>
+
 namespace computing
 {
 
@@ -15,7 +17,11 @@ public:
 // operators
   data	&operator=(const data&);
 
-// member functions
+private:
+  union {
+    int64_t integer_;
+    double  fp_;
+  };
 };
 
 }
