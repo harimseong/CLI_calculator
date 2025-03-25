@@ -65,22 +65,21 @@ void
 ast::traverse(void)
 {
   std::queue<ast*>  ast_queue;
-  ast*              node;
   size_t            layer_size = 1;
   size_t            count = 0;
 
   ast_queue.push(this);
   while (ast_queue.size() != 0) {
-    node = ast_queue.front();
+    ast&  node = *ast_queue.front();
     ast_queue.pop();
-    if (node->nodes_.size() == 0) {
+    if (node.nodes_.size() == 0) {
       std::cout << "terminal\n";
     }
-    std::cout << node->id_ << ": [" << type_string(node->type_) << ", \"" << node->data_ << "\"]\n";
-    for (auto& child: node->nodes_) {
+    std::cout << node.id_ << ": [" << type_string(node.type_) << ", \"" << node.data_ << "\"]\n";
+    for (auto& child: node.nodes_) {
       child.id_ = ++count;
       std::cout << "-> ";
-      std::cout << node->id_ << ": [" << type_string(child.type_) << ", \"" << child.data_ << "\"]\n";
+      std::cout << child.id_ << ": [" << type_string(child.type_) << ", \"" << child.data_ << "\"]\n";
       ast_queue.push(&child);
     }
     std::cout << "\n";
