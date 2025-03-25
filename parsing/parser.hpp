@@ -24,10 +24,10 @@ public:
   parsing_function_type parse_assignment;
   parsing_function_type parse_equation;
   parsing_function_type parse_expression;
-  parsing_function_type parse_unary_exp;
   parsing_function_type parse_additive_exp;
   parsing_function_type parse_multiple_exp;
   parsing_function_type parse_power;
+  parsing_function_type parse_unary_exp;
   parsing_function_type parse_term;
   parsing_function_type parse_function;
   parsing_function_type parse_trigonometric;

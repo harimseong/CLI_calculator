@@ -107,10 +107,7 @@ assignment      : VARIABLE '=' expression
                 ;
 equation        : expression '=' expression
                 ;
-expression      : unary_exp
-                ;
-unary_exp       : UNARY_OP additive_exp
-                | additive_exp
+expression      : additive_exp
                 ;
 additive_exp    : multiple_exp ADDITIVE_OP additive_exp
                 | multiple_exp
@@ -118,7 +115,10 @@ additive_exp    : multiple_exp ADDITIVE_OP additive_exp
 multiple_exp    : power MULTIPLE_OP multiple_exp
                 | power 
                 ;
-power           : term '^' term
+power           : unary_exp '^' power
+                | unary_exp
+                ;
+unary_exp       : UNARY_OP term
                 | term
                 ;
 term            : '(' expression ')'
