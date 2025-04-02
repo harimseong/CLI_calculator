@@ -1,7 +1,6 @@
 # Command-line Calculator
-This is a command-line calculator implemented on recursive descent parser(RDP).
-Purpose of the project is practicing RDP rather than making useful calculator.
-I tried to write the RDP code following some rules as strict as possible hoping for automatic generation of the RDP code in the future.
+This is a command-line calculator implemented on LL(1) backtrack-free recursive descent parser(RDP).
+Purpose of the project is getting familiar with compiler frontend elements such as tokenizer, parser and AST.
 
 ## Tokenizer
 Useful concepts for understanding and implementing tokenizer(or lexer or scanner).
@@ -122,7 +121,6 @@ unary_exp       : UNARY_OP term
                 | term
                 ;
 term            : '(' expression ')'
-                | '(' term ')'
                 | NUMBER
                 | VARIABLE
                 | function
