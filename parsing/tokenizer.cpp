@@ -8,10 +8,10 @@ namespace parsing
 {
 
 /*
- * @return a token and update input.
+ * @return update input and current token.
  */
-token
-tokenizer::get(std::string_view& input)
+void
+tokenizer::consume(std::string_view& input)
 {
   token new_token;
   size_t token_size;
@@ -21,26 +21,32 @@ tokenizer::get(std::string_view& input)
   token_size = new_token.data_.size();
   input = input.substr(token_size, input.size() - token_size);
   } while (new_token.comp_type(token::type::whitespace) == true);
-  return new_token;
+  cur_token_ = new_token;
 }
 
 /*
- * @return a token from input.
- * input is copied so that original input will not be changed.
+ * @return current token after update
  */
 token
-tokenizer::peek(std::string_view input)
+tokenizer::get(std::string_view& input)
 {
-  return get(input); 
+  token cur_token;
+
+  cur_token = peek(input);
+  consume(input);
+  return cur_token;
 }
 
 /*
- * discard a token and update input.
+ * @return current token without update
  */
-void
-tokenizer::consume(std::string_view& input)
+token
+tokenizer::peek(std::string_view& input)
 {
-  (void)get(input);
+  if (cur_token_.comp_type(token::invalid)) {
+    consume(input);
+  }
+  return cur_token_; 
 }
 
 void

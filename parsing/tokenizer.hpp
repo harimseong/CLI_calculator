@@ -12,17 +12,19 @@ class   tokenizer
 public:
   tokenizer() {};
   ~tokenizer() {};
-private:
   tokenizer(const tokenizer&) = delete;
   tokenizer	&operator=(const tokenizer&) = delete;
-
-  token find_token(std::string_view input);
 public:
   token get(std::string_view& input);
-  token peek(std::string_view input);
+  token peek(std::string_view& input);
   void  consume(std::string_view& input);
 
   void  test_find_token(void);
+
+private:
+  token find_token(std::string_view input);
+
+  token cur_token_;
 };
 
 }
