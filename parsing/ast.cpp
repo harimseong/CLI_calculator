@@ -105,9 +105,6 @@ ast::type_string(type t)
     "function",
     "power",
     "trigonometric",
-    "unary_op",
-    "additive_op",
-    "multiple_op",
     "number",
     "variable",
   };
@@ -137,16 +134,10 @@ ast::type_string(type t)
       return type_strings[10];
     case type::trigonometric:
       return type_strings[11];
-    case type::unary_op:
-      return type_strings[12];
-    case type::additive_op:
-      return type_strings[13];
-    case type::multiple_op:
-      return type_strings[14];
     case type::number:
-      return type_strings[15];
+      return type_strings[12];
     case type::variable:
-      return type_strings[16];
+      return type_strings[13];
   };
   return "error";
 }

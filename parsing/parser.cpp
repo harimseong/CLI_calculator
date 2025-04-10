@@ -1,31 +1,74 @@
-#include <iostream>
-#include <cassert>
 
 #include "parser.hpp"
 #include "ast.hpp"
 
-#define COMMON_START \
-  ++depth;
+#ifdef DEBUG_PARSER
+#include <iostream>
+#include <vector>
+#include <cstdio>
 
-#define COMMON_EXIT \
-  --depth;
-  
-#define ERROR(input) \
-  COMMON_EXIT; \
-  std::cout << "E "; \
-  for (int i = 1; i < depth; ++i) { std::cout << "| "; } \
-  print_string(__func__, input); \
-  std::cout << "\n";
+static int  s_depth;
+static std::vector<uint16_t>  s_spaces(65, 0x207C);
 
-#define SUCCESS(node) \
-  COMMON_EXIT; \
-  std::cout << "| "; \
-  for (int i = 1; i < depth; ++i) { std::cout << "| "; } \
-  input_orig = input; \
-  print_node(__func__, node); \
-  std::cout << "\n";
+# define PRINT_SPACES \
+  std::cout << reinterpret_cast<const char*>(s_spaces.data()) + 127 - 2 * s_depth;
 
-static int  depth;
+# define DEBUG_PRINT(fmt, ...) \
+  PRINT_SPACES;\
+  printf(fmt, __VA_ARGS__) 
+
+# define DEBUG_PARSE_BEGIN \
+{\
+  ++s_depth;\
+}
+
+# define DEBUG_PARSE_EXIT \
+{\
+  --s_depth;\
+}
+
+# define DEBUG_PARSE_SUCCESS(str) \
+{\
+  PRINT_SPACES;\
+  std::cout << "[O]" << __func__ << ": \"" << str << "\"";\
+  std::cout << '\n';\
+}
+
+# define DEBUG_PARSE_FAIL(str) \
+{\
+  PRINT_SPACES;\
+  std::cout << "[X]" << __func__ << ": \"" << str << "\"";\
+  std::cout << '\n';\
+}
+
+#else
+# define DEBUG_PRINT(fmt, ...)
+# define DEBUG_PARSE_BEGIN
+# define DEBUG_PARSE_EXIT
+# define DEBUG_PARSE_SUCCESS(str) (void)str;
+# define DEBUG_PARSE_FAIL(str) (void)str;
+# define PRINT_SPACES
+#endif
+
+#define PARSE_BEGIN \
+  const std::string_view old_input_ = input;\
+  (void)old_input_;\
+  DEBUG_PARSE_BEGIN;
+
+#define PARSE_EXIT \
+  DEBUG_PARSE_EXIT;
+
+#define PARSE_FAIL(str) \
+  DEBUG_PARSE_FAIL(str);\
+  PARSE_EXIT;\
+  input = old_input_;\
+  return false;
+
+#define PARSE_SUCCESS(str) \
+  DEBUG_PARSE_SUCCESS(str);\
+  PARSE_EXIT;\
+  return true;
+
 
 namespace parsing
 {
@@ -39,499 +82,268 @@ parser::~parser()
 {
 }
 
+// input           : LINEBREAK
+//                 | expression LINEBREAK
 bool
-parser::parse(std::string_view& input_orig, ast& tree)
+parser::parse(std::string_view& input, ast& node)
 {
-  depth = 0;
-  COMMON_START;
-  tree.set_type(ast_type::input);
+#ifdef DEBUG_PARSER
+  s_spaces.back() = 0;
+  if (1) {
+    std::cout << "tokenizer test\n";
+    tokenizer_.test_find_token();
+    std::cout << '\n';
+  }
+#endif
 
-  std::string_view  input = input_orig;
-  bool  ret0;
-  ast   node0;
-
-  ret0 = parse_linebreak(input, node0);
-  if (ret0 == true) {
-    tree = node0;
-    SUCCESS(tree);
+  // LINEBREAK
+  if (test_terminal(input, token_type::eol) == true) {
     return true;
   }
-  ret0 = parse_equation(input, node0)
-  || parse_assignment(input, node0)
-  || parse_expression(input, node0);
-  if (ret0 == true) {
-    goto pass0;
-  }
-  ERROR(input);
-  return false;
-pass0:
-  bool  ret1;
-  ast   node1;
 
-  ret1 = parse_linebreak(input, node1);
-  if (ret1 == true) {
-    goto pass1;
-  }
-  ERROR(input);
-  return false;
-pass1:
-  tree = node0;
-  SUCCESS(tree);
-  return true;
-}
-
-bool
-parser::parse_equation(std::string_view& input_orig, ast& tree)
-{
-  COMMON_START;
-  tree.set_type(ast_type::equation);
-  std::string_view  input = input_orig;
-  // early return
-  if (input.find('=') == std::string_view::npos) {
-    ERROR(input);
+  // expression LINEBREAK
+  if (parse_expression(input, node) == false) {
     return false;
   }
-  bool  ret0;
-  ast   node0;
-
-  ret0 = parse_expression(input, node0);
-  if (ret0 == true) {
-    goto pass0;
-  }
-  ERROR(input);
-  return false;
-pass0:
-  assert(tokenizer_.get(input).data_ == "=");
-
-  bool  ret1;
-  ast   node1;
-  ret1 = parse_expression(input, node1);
-  if (ret1 == true) {
-    goto pass1;
-  }
-  ERROR(input);
-  return false;
-pass1:
-  tree.insert(node0);
-  tree.insert(node1);
-  SUCCESS(tree);
-  return true;
-}
-
-bool
-parser::parse_assignment(std::string_view& input_orig, ast& tree)
-{
-  COMMON_START;
-  tree.set_type(ast_type::assignment);
-  std::string_view  input = input_orig;
-  // early return
-  if (input.find('=') == std::string_view::npos) {
-    ERROR(input);
+  if (test_terminal(input, token_type::eol) == false) {
     return false;
   }
-  // will be implemented in v2
-  ERROR(input);
-  return false;
-}
-
-bool
-parser::parse_expression(std::string_view& input_orig, ast& tree)
-{
-  COMMON_START;
-  tree.set_type(ast_type::expression);
-  std::string_view  input = input_orig;
-  bool ret = parse_additive_exp(input, tree);
-
-  if (ret == false) {
-    ERROR(input);
-    return false;
-  }
-  SUCCESS(tree);
   return true;
 }
 
+// expression      : equation    
+//                 | simple_exp
 bool
-parser::parse_additive_exp(std::string_view& input_orig, ast& tree)
+parser::parse_expression(std::string_view& input, ast& node)
 {
-  COMMON_START;
-  tree.set_type(ast_type::additive_exp);
-  std::string_view  input = input_orig;
-  bool  ret0;
-  ast   node0;
+  std::string::size_type  equal_pos;
 
-  ret0 = parse_multiple_exp(input, node0);
-  if (ret0 == true) {
-    goto pass0;
+  equal_pos = input.find('=');
+  // simple_exp
+  if (equal_pos == std::string::npos) {
+    return parse_simple_exp(input, node);
   }
-  ERROR(input);
+  // equation
+  if (equal_pos == input.rfind('=')) {
+    return parse_equation(input, node);
+  }
   return false;
-pass0:
-  bool  ret1;
+}
+
+// equation        : VARIABLE '=' expression
+//                 | expression '=' expression
+bool
+parser::parse_equation(std::string_view& input, ast& node)
+{
+  PARSE_BEGIN;
+  ast       node1;
+  ast_type  node1_type;
+  ast       node2;
+
+  if (parse_expression(input, node1) == false) {
+    PARSE_FAIL(node.get_data());
+  }
+  node1_type = node1.get_type();
+  if (tokenizer_.get(input).data_ != "="
+    || parse_expression(input, node2) != true) {
+    PARSE_FAIL(node.get_data());
+  }
+  node.set_type(node1_type == ast_type::variable ?
+    ast_type::assignment : ast_type::equation);
+  node.insert(node1);
+  node.insert(node2);
+  PARSE_SUCCESS(node.get_data());
+}
+
+// simple_exp      : additive_exp
+bool
+parser::parse_simple_exp(std::string_view& input, ast& node)
+{
+  // additive_exp
+  return parse_additive_exp(input, node);
+}
+
+// additive_exp    : multiple_exp ADDITIVE_OP additive_exp
+//                 | multiple_exp
+bool
+parser::parse_additive_exp(std::string_view& input, ast& node)
+{
+  PARSE_BEGIN;
+  token op;
   ast   node1;
-
-  ret1 = parse_additive_op(input, node1);
-  if (ret1 == true) {
-    goto pass1;
-  }
-  tree = node0;
-  SUCCESS(tree);
-  return true;
-pass1:
-  bool  ret2;
   ast   node2;
 
-  ret2 = parse_additive_exp(input, node2);
-  if (ret2 == true) {
-    goto pass2;
+  if (parse_multiple_exp(input, node1) == false) {
+    PARSE_FAIL(node.get_data());
   }
-  ERROR(input);
-  return false;
-pass2:
-  tree.insert(node0);
-  tree.insert(node2);
-  tree.set_data(node1.get_data());
-  SUCCESS(tree);
-  return true;
+  if (test_terminal(input, token_type::add_op) == false) {
+    node = node1;
+    PARSE_SUCCESS(node.get_data());
+  }
+  if (parse_additive_exp(input, node2) == false) {
+    PARSE_FAIL(node.get_data());
+  }
+  node.set_type(ast_type::additive_exp);
+  node.set_data(terminal_.data_);
+  node.insert(node1);
+  node.insert(node2);
+  PARSE_SUCCESS(node.get_data());
 }
 
+// multiple_exp    : power MULTIPLE_OP multiple_exp
+//                 | power 
 bool
-parser::parse_multiple_exp(std::string_view& input_orig, ast& tree)
+parser::parse_multiple_exp(std::string_view& input, ast& node)
 {
-  COMMON_START;
-  tree.set_type(ast_type::multiple_exp);
-  std::string_view  input = input_orig;
-  bool  ret0;
-  ast   node0;
-
-  ret0 = parse_power(input, node0);
-  if (ret0 == true) {
-    goto pass0;
-  }
-  ERROR(input);
-  return false;
-pass0:
-  bool  ret1;
+  PARSE_BEGIN;
   ast   node1;
-
-  ret1 = parse_multiple_op(input, node1);
-  if (ret1 == true) {
-    goto pass1;
-  }
-  tree = node0;
-  SUCCESS(tree);
-  return true;
-pass1:
-  bool  ret2;
   ast   node2;
 
-  ret2 = parse_multiple_exp(input, node2); 
-  if (ret2 == true) {
-    goto pass2;
+  if (parse_power(input, node1) == false) {
+    PARSE_FAIL(node.get_data());
   }
-  ERROR(input);
-  return false;
-pass2:
-  tree.insert(node0);
-  tree.insert(node2);
-  tree.set_data(node1.get_data());
-  SUCCESS(tree);
-  return true;
+  if (test_terminal(input, token_type::mul_op) == false) {
+    node = node1;
+    PARSE_SUCCESS(node.get_data());
+  }
+  if (parse_multiple_exp(input, node2) == false) {
+    PARSE_FAIL(node.get_data());
+  }
+  node.set_type(ast_type::multiple_exp);
+  node.set_data(terminal_.data_);
+  node.insert(node1);
+  node.insert(node2);
+  PARSE_SUCCESS(node.get_data());
 }
 
+// power           : unary_exp '^' power
+//                 | unary_exp
 bool
-parser::parse_power(std::string_view& input_orig, ast& tree)
+parser::parse_power(std::string_view& input, ast& node)
 {
-  COMMON_START;
-  tree.set_type(ast_type::power);
-  std::string_view  input = input_orig;
-  bool  ret0;
-  ast   node0;
-
-  ret0 = parse_unary_exp(input, node0);
-  if (ret0 == true) {
-    goto pass0;
-  }
-  ERROR(input);
-  return false;
-pass0:
-  if (tokenizer_.peek(input).data_ == "^") {
-    tokenizer_.consume(input);
-    goto pass1;
-  }
-  tree = node0;
-  SUCCESS(tree);
-  return true;
-pass1:
-  bool  ret1;
+  PARSE_BEGIN;
   ast   node1;
-
-  ret1 = parse_power(input, node1);
-  if (ret1 == true) {
-    goto pass2;
-  }
-  ERROR(input);
-  return false;
-pass2:
-  tree.insert(node0);
-  tree.insert(node1);
-  SUCCESS(tree);
-  return true;
-}
-
-bool
-parser::parse_unary_exp(std::string_view& input_orig, ast& tree)
-{
-  COMMON_START;
-  tree.set_type(ast_type::unary_exp);
-  std::string_view  input = input_orig;
-  bool  ret0;
-  bool  ret1;
-  ast   node0;
-  ast   node1;
-
-  ret0 = parse_unary_op(input, node0);
-  ret1 = parse_term(input, node1);
-  if (ret1 == true) {
-    goto pass2;
-  }
-  ERROR(input);
-  return false;
-pass2:
-  if (ret0 == true) {
-    tree.insert(node1);
-    tree.set_data(node0.get_data());
-  } else {
-    tree = node1;
-  }
-  SUCCESS(tree);
-  return true;
-}
-
-bool
-parser::parse_term(std::string_view& input_orig, ast& tree)
-{
-  COMMON_START;
-  tree.set_type(ast_type::term);
-  std::string_view  input = input_orig;
-  if (tokenizer_.peek(input).data_ == "(") {
-    tokenizer_.consume(input);
-    bool  ret0;
-    ast   node0;
-
-    ret0 = parse_expression(input, node0);
-    if (ret0 == true) {
-      goto pass0;
-    }
-
-    ret0 = parse_term(input, node0);
-    if (ret0 == true) {
-      goto pass0;
-    }
-    
-    ERROR(input);
-    return false;
-pass0:
-    if (tokenizer_.get(input).data_ != ")") {
-      ERROR(input);
-      return false;
-    }
-    tree = node0;
-    SUCCESS(tree);
-    return true;
-  }
-  bool  ret2;
   ast   node2;
 
-  ret2 = parse_number(input, node2);
-  if (ret2 == true) {
-    goto pass1;
+  if (parse_unary_exp(input, node1) == false) {
+    PARSE_FAIL(node.get_data());
   }
-  ret2 = parse_variable(input, node2);
-  if (ret2 == true) {
-    goto pass1;
+  if (tokenizer_.peek(input).data_ != "^") {
+    node = node1;
+    PARSE_SUCCESS(node.get_data());
   }
-  ret2 = parse_function(input, node2);
-  if (ret2 == true) {
-    goto pass1;
+  if (parse_power(input, node2) == false) {
+    PARSE_FAIL(node.get_data());
   }
-  ERROR(input);
-  return false;
-pass1:
-  tree = node2;
-  SUCCESS(tree);
-  return true;
+  node.set_type(ast_type::power);
+  node.set_data(terminal_.data_);
+  node.insert(node1);
+  node.insert(node2);
+  PARSE_SUCCESS(node.get_data());
+}
+
+// unary_exp       : UNARY_OP term
+//                 | term
+bool
+parser::parse_unary_exp(std::string_view& input, ast& node)
+{
+  PARSE_BEGIN;
+  ast   node1;
+  bool  is_unary;
+
+  is_unary = test_terminal(input, token_type::unary_op);
+  if (parse_term(input, node1) == false) {
+    PARSE_FAIL(node.get_data());
+  }
+  if (is_unary == false) {
+    node = node1;
+    PARSE_SUCCESS(node.get_data());
+  }
+  node.set_type(ast_type::unary_exp);
+  node.set_data(terminal_.data_);
+  node.insert(node1);
+  PARSE_SUCCESS(node.get_data());
+}
+
+// term            : '(' expression ')'
+//                 | NUMBER
+//                 | VARIABLE
+//                 | function
+bool
+parser::parse_term(std::string_view& input, ast& node)
+{
+  PARSE_BEGIN;
+  token tok;
+  ast   node1;
+
+  tok = tokenizer_.peek(input);
+  if (tok.data_ == "(") {
+    std::string_view::size_type pos;
+
+    pos = input.rfind(')');
+    if (pos == std::string_view::npos) {
+      PARSE_FAIL(node.get_data());
+    }
+    input = input.substr(0, pos);
+    if (parse_expression(input, node1) == false) {
+      PARSE_FAIL(node.get_data());
+    }
+    tok = tokenizer_.peek(input);
+    if (tok.data_ != ")") {
+      PARSE_FAIL(node.get_data());
+    }
+    node = node1;
+    PARSE_SUCCESS(node.get_data());
+  }
+  if (test_terminal(input, token_type::number) == true) {
+    node.set_type(ast_type::number);
+    node.set_data(terminal_.data_);
+    PARSE_SUCCESS(node.get_data());
+  }
+  if (test_terminal(input, token_type::word) == true) {
+    node.set_type(ast_type::variable);
+    node.set_data(terminal_.data_);
+    PARSE_SUCCESS(node.get_data());
+  }
+  if (parse_function(input, node1) == true) {
+    node = node1;
+    PARSE_SUCCESS(node.get_data());
+  }
+  PARSE_FAIL(node.get_data());
 }
 
 bool
-parser::parse_function(std::string_view& input_orig, ast& tree)
+parser::parse_function(std::string_view& input, ast& node)
 {
-  COMMON_START;
-  tree.set_type(ast_type::function);
-  std::string_view  input = input_orig;
-  bool  ret0;
-  ast   node0;
-
-  ret0 = parse_trigonometric(input, node0);
-  if (ret0 == true) {
-    goto pass0;
-  }
-  ERROR(input);
-  return false;
-pass0:
-  tree.insert(node0);
-  SUCCESS(tree);
-  return true;
+  // PARSE_BEGIN;
+  (void)input;
+  (void)node;
+  return parse_trigonometric(input, node);
 }
 
 bool
-parser::parse_trigonometric(std::string_view& input_orig, ast& tree)
+parser::parse_trigonometric(std::string_view& input, ast& node)
 {
-  COMMON_START;
-  (void)input_orig;
-  (void)tree;
-  ERROR(input_orig);
-  return false; // v2
-}
-
-bool
-parser::parse_number(std::string_view& input_orig, ast& tree)
-{
-  COMMON_START;
-  tree.set_type(ast_type::number);
-  std::string_view  input = input_orig;
-  bool  ret0;
-
-  ret0 = tokenizer_.peek(input).comp_type(token_type::number);
-  if (ret0 == true) {
-    goto pass0;
-  }
-  ERROR(input);
+  // PARSE_BEGIN;
+  // PARSE_FAIL;
+  (void)input;
+  (void)node;
   return false;
-pass0:
-  tree.set_data(tokenizer_.get(input).data_);
-  SUCCESS(tree);
-  return true;
 }
-
 bool
-parser::parse_variable(std::string_view& input_orig, ast& tree)
+parser::test_terminal(std::string_view& input, token_type type)
 {
-  COMMON_START;
-  tree.set_type(ast_type::variable);
-  std::string_view  input = input_orig;
-  bool  ret0;
+  PARSE_BEGIN;
+  token tok;
 
-  ret0 = tokenizer_.peek(input).comp_type(token_type::word);
-  if (ret0 == true) {
-    goto pass0;
+  tok = tokenizer_.peek(input);
+  if (tok.comp_type(type) == false) {
+    DEBUG_PRINT("token data=%s, type=%d\n", tok.data_.data(), tok.type_pack_);
+    PARSE_FAIL(input);
   }
-  ERROR(input);
-  return false;
-pass0:
-  tree.set_data(tokenizer_.get(input).data_);
-  SUCCESS(tree);
-  return true;
-}
-
-bool
-parser::parse_unary_op(std::string_view& input_orig, ast& tree)
-{
-  COMMON_START;
-  tree.set_type(ast_type::unary_op);
-  std::string_view  input = input_orig;
-  bool  ret0;
-  token token0;
-
-  token0 = tokenizer_.get(input);
-  ret0 = token0.comp_type(token_type::unary_op);
-  if (ret0 == true) {
-    goto pass0;
-  }
-  ERROR(input);
-  return false;
-pass0:
-  tree.set_data(token0.data_);
-  SUCCESS(tree);
-  return true;
-}
-
-bool
-parser::parse_additive_op(std::string_view& input_orig, ast& tree)
-{
-  COMMON_START;
-  tree.set_type(ast_type::additive_op);
-  std::string_view  input = input_orig;
-  bool  ret0;
-  token token0;
-
-  token0 = tokenizer_.get(input);
-  ret0 = token0.comp_type(token_type::add_op);
-  if (ret0 == true) {
-    goto pass0;
-  }
-  ERROR(token0.data_);
-  return false;
-pass0:
-  tree.set_data(token0.data_);
-  SUCCESS(tree);
-  return true;
-}
-
-bool
-parser::parse_multiple_op(std::string_view& input_orig, ast& tree)
-{
-  COMMON_START;
-  tree.set_type(ast_type::multiple_op);
-  std::string_view  input = input_orig;
-  bool  ret0;
-  token token0;
-
-  token0 = tokenizer_.get(input);
-  ret0 = token0.comp_type(token_type::mul_op);
-  if (ret0 == true) {
-    goto pass0;
-  }
-  ERROR(token0.data_);
-  return false;
-pass0:
-  tree.set_data(token0.data_);
-  SUCCESS(tree);
-  return true;
-}
-
-bool
-parser::parse_linebreak(std::string_view& input_orig, ast& tree)
-{
-  COMMON_START;
-  tree.set_type(ast_type::empty);
-  std::string_view  input = input_orig;
-  bool  ret0;
-  token token0;
-
-  token0 = tokenizer_.get(input);
-  ret0 = token0.comp_type(token_type::eol);
-  if (ret0 == true) {
-    goto pass0;
-  }
-  ERROR(input);
-  return false;
-pass0:
-  tree.set_data("");
-  SUCCESS(tree);
-  return true;
-}
-
-void
-parser::print_string(std::string_view function, std::string_view str)
-{
-  std::cout << function << ": \"" << str << "\"";
-}
-
-void
-parser::print_node(std::string_view function, const ast& tree)
-{
-  std::cout << function << ": data=\"" << tree.get_data()
-    << "\" | type=" << static_cast<int>(tree.get_type());
+  terminal_ = tok;
+  tokenizer_.consume(input);
+  PARSE_SUCCESS(tok.data_);
 }
 
 } // parsing

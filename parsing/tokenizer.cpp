@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "tokenizer.hpp"
+#include "parsing/token.hpp"
 
 namespace parsing
 {
@@ -16,11 +17,13 @@ tokenizer::consume(std::string_view& input)
   token new_token;
   size_t token_size;
 
+  std::cout << "input=" << input << '\n';
   do {
-  new_token = find_token(input);
-  token_size = new_token.data_.size();
-  input = input.substr(token_size, input.size() - token_size);
-  } while (new_token.comp_type(token::type::whitespace) == true);
+    new_token = find_token(input);
+    std::cout << "token data=" << new_token.data_ << ", type=" << new_token.type_pack_ << '\n';
+    token_size = new_token.data_.size();
+    input = input.substr(token_size, input.size() - token_size);
+  } while (new_token.comp_type(token::whitespace) == true);
   cur_token_ = new_token;
 }
 
@@ -32,7 +35,10 @@ tokenizer::get(std::string_view& input)
 {
   token cur_token;
 
-  cur_token = peek(input);
+  if (cur_token_.type_pack_ == token::init) {
+    consume(input);
+  }
+  cur_token = cur_token_;
   consume(input);
   return cur_token;
 }
@@ -43,7 +49,7 @@ tokenizer::get(std::string_view& input)
 token
 tokenizer::peek(std::string_view& input)
 {
-  if (cur_token_.comp_type(token::invalid)) {
+  if (cur_token_.type_pack_ == token::init) {
     consume(input);
   }
   return cur_token_; 
@@ -55,8 +61,8 @@ tokenizer::test_find_token(void)
   typedef token::type token_type;
 
   const std::vector<std::pair<std::string, std::vector<token>>> test_cases = {
-    {"", {{"", token_type::invalid}}},
-    {" ", {{"", token_type::invalid}}},
+    {"", {{"", token_type::eol}}},
+    {" ", {{"", token_type::eol}}},
     {"a", {{"a", token_type::word}}},
     {" a ", {{"a", token_type::word}}},
     {"abc", {{"abc", token_type::word}}},
@@ -95,6 +101,13 @@ tokenizer::test_find_token(void)
     {".1", {{"", token_type::invalid}}},
     {"0.", {{"0.", token_type::floating}}},
     {"0.123", {{"0.123", token_type::floating}}},
+    {"(1)",
+      {
+        {"(", token_type::parenthesis},
+        {"1", token_type::integer},
+        {")", token_type::parenthesis},
+      }
+    },
   };
 
   int count = 0;
@@ -103,11 +116,12 @@ tokenizer::test_find_token(void)
     std::string_view str = tc.first;
     auto& answers = tc.second;
     token tkn;
+    tokenizer scanner;
 
     std::ios_base::fmtflags ff = std::cout.flags(std::ios_base::hex);
     std::cout << count << ": \"" << str << "\"\n";
     for (auto& answer: answers) {
-      tkn = get(str);
+      tkn = scanner.get(str);
       if (tkn.data_ != answer.data_ || tkn.comp_type(answer.type_pack_) == false) {
         std::cout << " X [" << tkn.data_ << ',' << static_cast<int>(tkn.type_pack_) << "] != [";
         std::cout << answer.data_ << ',' << static_cast<int>(answer.type_pack_) << "]\n";

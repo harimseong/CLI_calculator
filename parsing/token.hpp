@@ -13,6 +13,7 @@ public:
   typedef enum type {
     invalid = 0x000,
     whitespace = 0x001,
+    init = 0x002,
 
     equal = 0x100,
 
@@ -32,7 +33,8 @@ public:
 
     word = 0x600,
 
-    eol = 0x800,
+    eol = 0x700,
+
     mask = 0xff,
   } type;
 
@@ -73,6 +75,10 @@ public:
     return (operand0 & type::mask) & (operand1 & type::mask);
   };
 
+  std::string&  get_data(void)
+  {
+    return data_;
+  };
 
   std::string data_;
   type_pack   type_pack_;

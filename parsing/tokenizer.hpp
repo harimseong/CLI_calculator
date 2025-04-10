@@ -10,7 +10,7 @@ namespace parsing
 class   tokenizer
 {
 public:
-  tokenizer() {};
+  tokenizer(): cur_token_{"", token::init} {};
   ~tokenizer() {};
   tokenizer(const tokenizer&) = delete;
   tokenizer	&operator=(const tokenizer&) = delete;
@@ -19,7 +19,7 @@ public:
   token peek(std::string_view& input);
   void  consume(std::string_view& input);
 
-  void  test_find_token(void);
+  static void  test_find_token(void);
 
 private:
   token find_token(std::string_view input);

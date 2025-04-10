@@ -12,7 +12,7 @@ class  parser
 {
   typedef   token::type       token_type;
   typedef   ast::type         ast_type;
-  typedef   bool              parsing_function_type(std::string_view&, ast&);
+  typedef   bool              nonterminal_parser_t(std::string_view&, ast&);
 public:
   parser();
   ~parser();
@@ -20,29 +20,26 @@ public:
 
   parser	&operator=(const parser&) = delete;
 
-  parsing_function_type parse;
-  parsing_function_type parse_assignment;
-  parsing_function_type parse_equation;
-  parsing_function_type parse_expression;
-  parsing_function_type parse_additive_exp;
-  parsing_function_type parse_multiple_exp;
-  parsing_function_type parse_power;
-  parsing_function_type parse_unary_exp;
-  parsing_function_type parse_term;
-  parsing_function_type parse_function;
-  parsing_function_type parse_trigonometric;
-  parsing_function_type parse_number;
-  parsing_function_type parse_variable;
-  parsing_function_type parse_unary_op;
-  parsing_function_type parse_additive_op;
-  parsing_function_type parse_multiple_op;
-  parsing_function_type parse_linebreak;
+  nonterminal_parser_t  parse;
+  nonterminal_parser_t  parse_expression;
+  nonterminal_parser_t  parse_equation;
+  nonterminal_parser_t  parse_simple_exp;
+  nonterminal_parser_t  parse_additive_exp;
+  nonterminal_parser_t  parse_multiple_exp;
+  nonterminal_parser_t  parse_power;
+  nonterminal_parser_t  parse_unary_exp;
+  nonterminal_parser_t  parse_term;
+  nonterminal_parser_t  parse_function;
+  nonterminal_parser_t  parse_trigonometric;
 
 private:
+  bool    test_terminal(std::string_view& input, token_type type);
+
   void    print_string(std::string_view function, std::string_view str);
   void    print_node(std::string_view function, const ast& tree);
 
   tokenizer tokenizer_;
+  token     terminal_;
 };
 
 } // parsing

@@ -22,9 +22,6 @@ public:
     function,
     power,
     trigonometric,
-    unary_op,
-    additive_op,
-    multiple_op,
     number,
     variable,
   };

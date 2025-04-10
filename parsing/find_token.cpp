@@ -170,7 +170,7 @@ parsing::tokenizer::find_token(std::string_view input)
   e_state           cur_state;
 
   if (input.size() == 0) {
-    return token{"",token::type::eol};
+    return token{"", token::type::eol};
   }
   begin = input.begin();
   token_end = begin;
@@ -224,7 +224,7 @@ parsing::tokenizer::find_token(std::string_view input)
 
     case e_state::start: /* fall-through */
     case e_state::error:
-      return token{};
+      return token{"", token::type::invalid};
   }
   token new_token{std::string_view(input.data(), token_end - begin), token_type};
   return new_token;
