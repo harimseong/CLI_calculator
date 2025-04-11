@@ -136,7 +136,7 @@ fsm(std::string_view::iterator& itr, const std::string_view::iterator end)
 {
   // TODO: maximal munch scanner
   // TODO: stores position of failure and use it to handle failure efficiently
-  std::vector<e_state> stack;
+  std::vector<e_state> stack(1, e_state::error);
   e_state state = e_state::start;
   e_char  char_type;
 
@@ -149,7 +149,7 @@ fsm(std::string_view::iterator& itr, const std::string_view::iterator end)
     }
     stack.push_back(state);
   }
-  while (stack.size() > 0 && !is_accepted(state)) {
+  while (stack.size() > 1 && !is_accepted(state)) {
     stack.pop_back();
     state = stack.back();
     --itr;
