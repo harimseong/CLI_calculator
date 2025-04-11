@@ -1,4 +1,3 @@
-
 #include "parser.hpp"
 #include "ast.hpp"
 
@@ -175,11 +174,11 @@ parser::parse_additive_exp(std::string_view& input, ast& node)
     node = node1;
     PARSE_SUCCESS(node.get_data());
   }
+  node.set_data(terminal_.data_);
   if (parse_additive_exp(input, node2) == false) {
     PARSE_FAIL(node.get_data());
   }
   node.set_type(ast_type::additive_exp);
-  node.set_data(terminal_.data_);
   node.insert(node1);
   node.insert(node2);
   PARSE_SUCCESS(node.get_data());
@@ -201,11 +200,11 @@ parser::parse_multiple_exp(std::string_view& input, ast& node)
     node = node1;
     PARSE_SUCCESS(node.get_data());
   }
+  node.set_data(terminal_.data_);
   if (parse_multiple_exp(input, node2) == false) {
     PARSE_FAIL(node.get_data());
   }
   node.set_type(ast_type::multiple_exp);
-  node.set_data(terminal_.data_);
   node.insert(node1);
   node.insert(node2);
   PARSE_SUCCESS(node.get_data());
@@ -227,11 +226,11 @@ parser::parse_power(std::string_view& input, ast& node)
     node = node1;
     PARSE_SUCCESS(node.get_data());
   }
+  node.set_data(terminal_.data_);
   if (parse_power(input, node2) == false) {
     PARSE_FAIL(node.get_data());
   }
   node.set_type(ast_type::power);
-  node.set_data(terminal_.data_);
   node.insert(node1);
   node.insert(node2);
   PARSE_SUCCESS(node.get_data());
@@ -243,10 +242,12 @@ bool
 parser::parse_unary_exp(std::string_view& input, ast& node)
 {
   PARSE_BEGIN;
-  ast   node1;
-  bool  is_unary;
+  ast         node1;
+  bool        is_unary;
+  std::string op;
 
   is_unary = test_terminal(input, token_type::unary_op);
+  op = terminal_.data_;
   if (parse_term(input, node1) == false) {
     PARSE_FAIL(node.get_data());
   }
@@ -254,8 +255,8 @@ parser::parse_unary_exp(std::string_view& input, ast& node)
     node = node1;
     PARSE_SUCCESS(node.get_data());
   }
+  node.set_data(op);
   node.set_type(ast_type::unary_exp);
-  node.set_data(terminal_.data_);
   node.insert(node1);
   PARSE_SUCCESS(node.get_data());
 }
