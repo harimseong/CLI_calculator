@@ -17,10 +17,8 @@ tokenizer::consume(std::string_view& input)
   token new_token;
   size_t token_size;
 
-  std::cout << "input=" << input << '\n';
   do {
     new_token = find_token(input);
-    std::cout << "token data=" << new_token.data_ << ", type=" << new_token.type_pack_ << '\n';
     token_size = new_token.data_.size();
     input = input.substr(token_size, input.size() - token_size);
   } while (new_token.comp_type(token::whitespace) == true);

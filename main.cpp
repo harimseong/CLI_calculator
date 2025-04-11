@@ -12,20 +12,20 @@ int main(int argc, char** argv)
 {
   parsing::ast      t;
   parsing::parser   p;
-  std::string_view  input(argv[1]);
 
   if (argc == 1) {
     // interactive
-    std::cerr << argv[0] << ": interactive input is not supported\n";
+    std::cerr << argv[0] << ": interactive input is not supported.\n";
     return 1;
   }
+  std::string_view  input(argv[1]);
   // parse argv[1] and if it is valid expression, solve it.
   if (p.parse(input, t) == false) {
     std::cerr << argv[0] << ": invalid input\n";
     return 1;
   }
   t.traverse();
-  //computing::analyze(t);
+  analyzer::analyze(t);
   //computing::data solution = computing::compute(t);
   return 0;
 }

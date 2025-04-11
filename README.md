@@ -1,5 +1,5 @@
 # Command-line Calculator
-This is a command-line calculator implemented on LL(1) backtrack-free recursive descent parser(RDP).
+This is a command-line calculator implemented on backtrack-free recursive descent parser(RDP). Except that it examines equal sign to identify and solve equation, it is LL(1) parser.
 Purpose of the project is getting familiar with compiler frontend elements such as tokenizer, parser and AST.
 
 ## Tokenizer
@@ -98,15 +98,15 @@ lowercase entry is non-terminal and uppercase entry is terminal.
 terminal is represented in either string or regular expression.
 ```
 input           : LINEBREAK
-                | assignment LINEBREAK // v2 feature
-                | equation LINEBREAK
                 | expression LINEBREAK
                 ;
-assignment      : VARIABLE '=' expression
+expression      : equation    
+                | simple_exp
                 ;
-equation        : expression '=' expression
+equation        : VARIABLE '=' expression
+                | expression '=' expression
                 ;
-expression      : additive_exp
+simple_exp      : additive_exp
                 ;
 additive_exp    : multiple_exp ADDITIVE_OP additive_exp
                 | multiple_exp

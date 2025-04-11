@@ -34,6 +34,7 @@ public:
 
 private:
   bool    test_terminal(std::string_view& input, token_type type);
+  bool    test_terminal(std::string_view& input, std::string_view data);
 
   void    print_string(std::string_view function, std::string_view str);
   void    print_node(std::string_view function, const ast& tree);

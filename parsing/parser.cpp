@@ -89,19 +89,17 @@ parser::parse(std::string_view& input, ast& node)
 {
 #ifdef DEBUG_PARSER
   s_spaces.back() = 0;
-  if (1) {
+  if (0) {
     std::cout << "tokenizer test\n";
     tokenizer_.test_find_token();
     std::cout << '\n';
   }
 #endif
 
-  // LINEBREAK
   if (test_terminal(input, token_type::eol) == true) {
     return true;
   }
 
-  // expression LINEBREAK
   if (parse_expression(input, node) == false) {
     return false;
   }
@@ -119,11 +117,9 @@ parser::parse_expression(std::string_view& input, ast& node)
   std::string::size_type  equal_pos;
 
   equal_pos = input.find('=');
-  // simple_exp
   if (equal_pos == std::string::npos) {
     return parse_simple_exp(input, node);
   }
-  // equation
   if (equal_pos == input.rfind('=')) {
     return parse_equation(input, node);
   }
@@ -144,8 +140,8 @@ parser::parse_equation(std::string_view& input, ast& node)
     PARSE_FAIL(node.get_data());
   }
   node1_type = node1.get_type();
-  if (tokenizer_.get(input).data_ != "="
-    || parse_expression(input, node2) != true) {
+  if (test_terminal(input, "=") == false
+    || parse_expression(input, node2) == false) {
     PARSE_FAIL(node.get_data());
   }
   node.set_type(node1_type == ast_type::variable ?
@@ -159,7 +155,6 @@ parser::parse_equation(std::string_view& input, ast& node)
 bool
 parser::parse_simple_exp(std::string_view& input, ast& node)
 {
-  // additive_exp
   return parse_additive_exp(input, node);
 }
 
@@ -228,7 +223,7 @@ parser::parse_power(std::string_view& input, ast& node)
   if (parse_unary_exp(input, node1) == false) {
     PARSE_FAIL(node.get_data());
   }
-  if (tokenizer_.peek(input).data_ != "^") {
+  if (test_terminal(input, "^") == false) {
     node = node1;
     PARSE_SUCCESS(node.get_data());
   }
@@ -276,20 +271,17 @@ parser::parse_term(std::string_view& input, ast& node)
   token tok;
   ast   node1;
 
-  tok = tokenizer_.peek(input);
-  if (tok.data_ == "(") {
+  if (test_terminal(input, "(") == true) {
     std::string_view::size_type pos;
 
     pos = input.rfind(')');
     if (pos == std::string_view::npos) {
       PARSE_FAIL(node.get_data());
     }
-    input = input.substr(0, pos);
     if (parse_expression(input, node1) == false) {
       PARSE_FAIL(node.get_data());
     }
-    tok = tokenizer_.peek(input);
-    if (tok.data_ != ")") {
+    if (test_terminal(input, ")") == false) {
       PARSE_FAIL(node.get_data());
     }
     node = node1;
@@ -330,20 +322,43 @@ parser::parse_trigonometric(std::string_view& input, ast& node)
   (void)node;
   return false;
 }
+
 bool
 parser::test_terminal(std::string_view& input, token_type type)
 {
-  PARSE_BEGIN;
+  DEBUG_PARSE_BEGIN;
   token tok;
 
   tok = tokenizer_.peek(input);
   if (tok.comp_type(type) == false) {
-    DEBUG_PRINT("token data=%s, type=%d\n", tok.data_.data(), tok.type_pack_);
-    PARSE_FAIL(input);
+    DEBUG_PRINT("[X]%s: %d != %d, input=%s\n", __func__, tok.type_pack_, type, input.substr(0, 10).data());
+    DEBUG_PARSE_EXIT;
+    return false;
   }
   terminal_ = tok;
   tokenizer_.consume(input);
-  PARSE_SUCCESS(tok.data_);
+  DEBUG_PRINT("[O]%s: %s, %d\n", __func__, tok.data_.data(), tok.type_pack_);
+  DEBUG_PARSE_EXIT;
+  return true;
+}
+
+bool
+parser::test_terminal(std::string_view& input, std::string_view data)
+{
+  DEBUG_PARSE_BEGIN;
+  token tok;
+
+  tok = tokenizer_.peek(input);
+  if (tok.data_ != data) {
+    DEBUG_PRINT("[X]%s: `%s` != `%s`, input=%s\n", __func__, tok.data_.data(), data.data(), input.substr(0, 10).data());
+    DEBUG_PARSE_EXIT;
+    return false;
+  }
+  terminal_ = tok;
+  tokenizer_.consume(input);
+  DEBUG_PRINT("[O]%s: %s, %d\n", __func__, tok.data_.data(), tok.type_pack_);
+  DEBUG_PARSE_EXIT;
+  return true;
 }
 
 } // parsing

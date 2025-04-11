@@ -2,9 +2,9 @@ NAME    =  computor
 
 
 CXX       :=  c++
-CXXFLAGS  :=  -Wall -Wextra -Werror -std=c++17
+CXXFLAGS  :=  -Wall -Wextra -Werror -std=c++17 -I.
 LDFLAGS   :=
-DEBUGFLAGS:=  -g -fsanitize=address
+DEBUGFLAGS:=  -g -fsanitize=address -D DEBUG_PARSER 
 RM        :=  rm -f
 
 
