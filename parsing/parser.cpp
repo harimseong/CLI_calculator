@@ -26,17 +26,17 @@ static std::vector<uint16_t>  s_spaces(65, 0x207C);
   --s_depth;\
 }
 
-# define DEBUG_PARSE_SUCCESS(str) \
+# define DEBUG_PARSE_SUCCESS \
 {\
   PRINT_SPACES;\
-  std::cout << "[O]" << __func__ << ": \"" << str << "\"";\
+  std::cout << "[O]" << __func__ << ": \"" << node.get_data() << "\"";\
   std::cout << '\n';\
 }
 
-# define DEBUG_PARSE_FAIL(str) \
+# define DEBUG_PARSE_FAIL \
 {\
   PRINT_SPACES;\
-  std::cout << "[X]" << __func__ << ": \"" << str << "\"";\
+  std::cout << "[X]" << __func__ << ": \"" << node.get_data() << "\"";\
   std::cout << '\n';\
 }
 
@@ -44,8 +44,8 @@ static std::vector<uint16_t>  s_spaces(65, 0x207C);
 # define DEBUG_PRINT(fmt, ...)
 # define DEBUG_PARSE_BEGIN
 # define DEBUG_PARSE_EXIT
-# define DEBUG_PARSE_SUCCESS(str) (void)str;
-# define DEBUG_PARSE_FAIL(str) (void)str;
+# define DEBUG_PARSE_SUCCESS
+# define DEBUG_PARSE_FAIL
 # define PRINT_SPACES
 #endif
 
@@ -57,14 +57,14 @@ static std::vector<uint16_t>  s_spaces(65, 0x207C);
 #define PARSE_EXIT \
   DEBUG_PARSE_EXIT;
 
-#define PARSE_FAIL(str) \
-  DEBUG_PARSE_FAIL(str);\
+#define PARSE_FAIL \
+  DEBUG_PARSE_FAIL;\
   PARSE_EXIT;\
   input = old_input_;\
   return false;
 
-#define PARSE_SUCCESS(str) \
-  DEBUG_PARSE_SUCCESS(str);\
+#define PARSE_SUCCESS \
+  DEBUG_PARSE_SUCCESS;\
   PARSE_EXIT;\
   return true;
 
@@ -136,18 +136,18 @@ parser::parse_equation(std::string_view& input, ast& node)
   ast       node2;
 
   if (parse_expression(input, node1) == false) {
-    PARSE_FAIL(node.get_data());
+    PARSE_FAIL;
   }
   node1_type = node1.get_type();
   if (test_terminal(input, "=") == false
     || parse_expression(input, node2) == false) {
-    PARSE_FAIL(node.get_data());
+    PARSE_FAIL;
   }
   node.set_type(node1_type == ast_type::variable ?
     ast_type::assignment : ast_type::equation);
   node.insert(node1);
   node.insert(node2);
-  PARSE_SUCCESS(node.get_data());
+  PARSE_SUCCESS;
 }
 
 // simple_exp      : additive_exp
@@ -168,20 +168,20 @@ parser::parse_additive_exp(std::string_view& input, ast& node)
   ast   node2;
 
   if (parse_multiple_exp(input, node1) == false) {
-    PARSE_FAIL(node.get_data());
+    PARSE_FAIL;
   }
   if (test_terminal(input, token_type::add_op) == false) {
     node = node1;
-    PARSE_SUCCESS(node.get_data());
+    PARSE_SUCCESS;
   }
   node.set_data(terminal_.data_);
   if (parse_additive_exp(input, node2) == false) {
-    PARSE_FAIL(node.get_data());
+    PARSE_FAIL;
   }
   node.set_type(ast_type::additive_exp);
   node.insert(node1);
   node.insert(node2);
-  PARSE_SUCCESS(node.get_data());
+  PARSE_SUCCESS;
 }
 
 // multiple_exp    : power MULTIPLE_OP multiple_exp
@@ -194,20 +194,20 @@ parser::parse_multiple_exp(std::string_view& input, ast& node)
   ast   node2;
 
   if (parse_power(input, node1) == false) {
-    PARSE_FAIL(node.get_data());
+    PARSE_FAIL;
   }
   if (test_terminal(input, token_type::mul_op) == false) {
     node = node1;
-    PARSE_SUCCESS(node.get_data());
+    PARSE_SUCCESS;
   }
   node.set_data(terminal_.data_);
   if (parse_multiple_exp(input, node2) == false) {
-    PARSE_FAIL(node.get_data());
+    PARSE_FAIL;
   }
   node.set_type(ast_type::multiple_exp);
   node.insert(node1);
   node.insert(node2);
-  PARSE_SUCCESS(node.get_data());
+  PARSE_SUCCESS;
 }
 
 // power           : unary_exp '^' power
@@ -220,20 +220,20 @@ parser::parse_power(std::string_view& input, ast& node)
   ast   node2;
 
   if (parse_unary_exp(input, node1) == false) {
-    PARSE_FAIL(node.get_data());
+    PARSE_FAIL;
   }
   if (test_terminal(input, "^") == false) {
     node = node1;
-    PARSE_SUCCESS(node.get_data());
+    PARSE_SUCCESS;
   }
   node.set_data(terminal_.data_);
   if (parse_power(input, node2) == false) {
-    PARSE_FAIL(node.get_data());
+    PARSE_FAIL;
   }
   node.set_type(ast_type::power);
   node.insert(node1);
   node.insert(node2);
-  PARSE_SUCCESS(node.get_data());
+  PARSE_SUCCESS;
 }
 
 // unary_exp       : UNARY_OP term
@@ -249,16 +249,16 @@ parser::parse_unary_exp(std::string_view& input, ast& node)
   is_unary = test_terminal(input, token_type::unary_op);
   op = terminal_.data_;
   if (parse_term(input, node1) == false) {
-    PARSE_FAIL(node.get_data());
+    PARSE_FAIL;
   }
   if (is_unary == false) {
     node = node1;
-    PARSE_SUCCESS(node.get_data());
+    PARSE_SUCCESS;
   }
   node.set_data(op);
   node.set_type(ast_type::unary_exp);
   node.insert(node1);
-  PARSE_SUCCESS(node.get_data());
+  PARSE_SUCCESS;
 }
 
 // term            : '(' expression ')'
@@ -277,32 +277,32 @@ parser::parse_term(std::string_view& input, ast& node)
 
     pos = input.rfind(')');
     if (pos == std::string_view::npos) {
-      PARSE_FAIL(node.get_data());
+      PARSE_FAIL;
     }
     if (parse_expression(input, node1) == false) {
-      PARSE_FAIL(node.get_data());
+      PARSE_FAIL;
     }
     if (test_terminal(input, ")") == false) {
-      PARSE_FAIL(node.get_data());
+      PARSE_FAIL;
     }
     node = node1;
-    PARSE_SUCCESS(node.get_data());
+    PARSE_SUCCESS;
   }
   if (test_terminal(input, token_type::number) == true) {
     node.set_type(ast_type::number);
     node.set_data(terminal_.data_);
-    PARSE_SUCCESS(node.get_data());
+    PARSE_SUCCESS;
   }
   if (test_terminal(input, token_type::word) == true) {
     node.set_type(ast_type::variable);
     node.set_data(terminal_.data_);
-    PARSE_SUCCESS(node.get_data());
+    PARSE_SUCCESS;
   }
   if (parse_function(input, node1) == true) {
     node = node1;
-    PARSE_SUCCESS(node.get_data());
+    PARSE_SUCCESS;
   }
-  PARSE_FAIL(node.get_data());
+  PARSE_FAIL;
 }
 
 bool
