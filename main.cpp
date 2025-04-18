@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     return 1;
   }
   t.traverse();
-  analyzer::analyze(t);
+  //analyzer::analyze(t);
   //computing::data solution = computing::compute(t);
   return 0;
 }

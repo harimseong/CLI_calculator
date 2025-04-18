@@ -1,6 +1,7 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
 
+#include <cstdint>
 #include <string>
 #include <string_view>
 
